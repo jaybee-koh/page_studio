@@ -375,7 +375,7 @@ A. 꼼꼼하게 작업하고 있습니다. 자연산 생선 특성상 드물게 
 
 Q. 핏물이 있어요.
 A. 최대한 피를 빼고 혈압육을 제거해 보내드리지만 간혹 핏물이 남아 있을 수 있습니다. 키친타월로 가볍게 닦아 드시면 됩니다.</textarea></div>
-<div class="note">상품 정보를 원문 그대로 붙여넣고 ‘자동 구성’을 누르세요. 제목, 원산지, 스펙, 섭취 방법, 상품 특징, FAQ 등을 항목별로 나눠 배치합니다. 자동 분류 후 미리보기에서 문구를 직접 고칠 수 있습니다.</div>
+<div class="note">상품 정보를 원문 그대로 붙여넣고 ‘자동 구성’을 누르세요. 순서나 형식이 달라도 됩니다. ‘○ 제목’, ‘원산지 : 국내산’, ‘보관방법 : …’, ‘Q.’ 질문, ‘POINT 01’ 같은 핵심 단어를 찾아 알아서 알맞은 섹션에 배치합니다. 제목, 원산지, 스펙, 섭취 방법, 상품 특징, FAQ 등을 항목별로 나눠 배치합니다. 자동 분류 후 미리보기에서 문구를 직접 고칠 수 있습니다.</div>
 <button class="dark" style="width:100%;margin-top:12px" onclick="buildPage()">✦ 상세페이지 자동 구성</button>
 <h3>③ 상품 이미지 등록</h3><div class="field"><label>대표 상품 이미지</label><div class="upload">첫 화면에 사용할 사진<input type="file" accept="image/*" onchange="addImage(event,'heroImg')"></div></div>
 <div class="note">섹션 중간에 넣는 사진은 ④ 섹션 관리의 ‘이미지 추가’를 이용하세요.</div>
@@ -404,14 +404,7 @@ const $=id=>document.getElementById(id);
 function toast(t){let x=$('toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',2300)}
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function clean(s){return s.replace(/\*\*/g,'').replace(/\r/g,'').trim()}
-function splitSource(text){
- let lines=clean(text).split('\n');let title=lines.find(x=>x.trim())||'오늘의 추천 식품';let intro='';let first=lines.findIndex(x=>x.trim()===title);let cursor=first+1;while(cursor<lines.length&&!lines[cursor].trim())cursor++;if(cursor<lines.length&&!/^○/.test(lines[cursor].trim()))intro=lines[cursor].trim();
- let blocks=[];let current={title:'상품 소개',body:[]};
- for(let line of lines){let t=line.trim();if(/^○/.test(t)){if(current.body.length||current.title!=='상품 소개')blocks.push(current);current={title:t.replace(/^○\s*/,''),body:[]};}else if(t)current.body.push(t)}
- if(current.body.length)blocks.push(current);
- blocks.forEach(b=>{if(b.title==='상품 소개')b.body=b.body.filter(x=>x!==title.trim()&&x!==intro)});return {title,intro,blocks:blocks.filter(b=>b.body.length||b.title!=='상품 소개')};
-}
-function parseSpecs(body){let rows=[];let ingredients=[];body.forEach(line=>{let t=line.replace(/^※\s*/,'');let m=t.match(/^([^:：]+)\s*[:：]\s*(.*)$/);if(m){let k=m[1].trim(),v=m[2].trim();if(/성분표시|원재료|간장와사비|김\s/.test(k)||/간장와사비\s*:|김\s*:/.test(line))ingredients.push(t);else rows.push([k,v])}else if(/^[-·]/.test(t)||/함유$/.test(t))ingredients.push(t);else ingredients.push(t)});return {rows,ingredients}}
+function parseSpecs(body){let rows=[];let ingredients=[];body.forEach(line=>{let t=line.replace(/^※\s*/,'');let m=t.match(/^([^:：]+)\s*[:：]\s*(.*)$/);if(m){let k=m[1].trim(),v=m[2].trim();if(/성분|원재료|원료|알레르기|함유|간장와사비|김\s/.test(k)||/간장와사비\s*:|김\s*:/.test(line))ingredients.push(t);else rows.push([k,v])}else if(/^[-·]/.test(t)||/함유$/.test(t))ingredients.push(t);else ingredients.push(t)});return {rows,ingredients}}
 const TOOLS=`<div class="tools"><button onclick="addImageToSec(event,this)" title="이 섹션에 이미지 추가 (사각틀/원형틀 선택)">🖼 이미지 ▾</button><button class="tool-text" onclick="addTextToSec(event,this)" title="이 섹션에 텍스트 상자 추가">T 텍스트</button><button onclick="moveSec(event,this,-1)">↑</button><button onclick="moveSec(event,this,1)">↓</button><button onclick="deleteSec(event,this)">삭제</button></div>`;
 function section(type,title,body,label){return `<section class="sec" data-type="${type}"${label?' data-label="'+esc(label)+'"':''} onclick="selectSec(this)">${TOOLS}${body}</section>`}
 function makeTextBlock(title,lines){return `<div class="inner"><div class="tag">FRESH FOOD STORY</div><div class="featurehead"><h2 contenteditable="true">${esc(title)}</h2></div><div class="copy" contenteditable="true">${esc(lines.join('\n'))}</div></div>`}
@@ -578,6 +571,42 @@ text:(d,b)=>`<div class="inner"><div class="tag">${d.tag}</div><div class="featu
 notice:(d,b)=>`<div class="notice inner"><div class="tag">${d.tag}</div><h2 contenteditable="true">${esc(b.title)}</h2><div class="copy" contenteditable="true">${esc(b.body.join('\n'))}</div></div>`,
 faq:(d,b)=>{let qs=[],q=null,ans=[];b.body.forEach(line=>{if(/^Q[.．]/i.test(line)){if(q)qs.push([q,ans.join('\n')]);q=line.replace(/^Q[.．]\s*/i,'');ans=[]}else if(/^A[.．]/i.test(line))ans.push(line.replace(/^A[.．]\s*/i,''));else if(q)ans.push(line)});if(q)qs.push([q,ans.join('\n')]);let f=qs.map(([q,a])=>`<div class="faq"><div class="q" contenteditable="true"><span>Q.</span>${esc(q)}</div><div class="a" contenteditable="true"><b class="ak">A.</b> ${esc(a)}</div></div>`).join('')||`<div class="copy" contenteditable="true">${esc(b.body.join('\n'))}</div>`;return `<div class="inner"><div class="center"><div class="tag">${d.tag}</div><h2 contenteditable="true">${esc(b.title)}</h2></div>${f}</div>`}
 };
+const CATS=[['r',/교환|환불|반품/],['f',/자주|FAQ|Q ?& ?A|궁금|알고 먹/i],['t',/해동/],['k',/보관/],['o',/원산지/],['g',/등급|이력/],['s',/스펙|상품 ?정보|제품 ?정보/],['h',HOW],['p',/매리트|메리트|선별|차별|특징|장점|확실/],['d',/배송|포장|신선/],['c',/확인|주의|안전|유의|알레르기|기생충/]];
+const catOf=t=>{for(const [k,r] of CATS)if(r.test(t))return k;return null};
+const DEF={o:'원산지',s:'상품 스펙',g:'등급 · 이력 정보',t:'해동 방법',k:'보관 방법',c:'주의사항 안내',d:'배송 · 포장 안내',f:'자주 묻는 질문',r:'교환 · 환불 안내',p:'상품 매리트',h:'맛있게 먹는 방법'};
+const HEAD=/^\d{0,2}\s*(원산지(\s*공개)?(\s*합니다)?|(상품|제품)\s*(스펙|정보)(\s*요약)?(\s*합니다)?|보관\s*(방법|법)|해동\s*(방법|법)|(맛있게\s*)?(먹는|드시는|조리|요리|굽는|활용)\s*(방법|법|팁)|어떻게\s*먹어야\s*맛나나요|(상품|제품)\s*(특징|장점)|(상품의\s*)?(확실한\s*)?(매리트|메리트)|(배송|포장)\s*안내|구매\s*전\s*확인\s*(사항)?|확인해\s*주세요|(섭취\s*시\s*)?주의\s*사항|교환\s*[\/·및,]?\s*환불(\s*안내)?|(교환|환불|반품)\s*안내|자주\s*묻는\s*질문|Q\s*&\s*A|FAQ|알고\s*먹으면\s*더\s*맛있어요)\s*[!?.:：]*$/i;
+const KEYS=[['o',/^원산지$/],['k',/^보관\s*(방법|법|온도)?$/],['t',/^해동\s*(방법|법)?$/],['d',/^(배송|택배)\s*(안내|방법|정보|기간)?$/],['r',/^(교환|환불|반품)([\s\/·및,]*(교환|환불|반품))*\s*(안내|규정|정책|기준)?$/],['c',/^(주의\s*사항|섭취\s*시\s*주의\s*사항|알레르기\s*(정보|유발\s*성분)?)$/],['g',/^(등급|이력\s*번호|도축\s*일|도축일자)$/],['s',/^(구성|중량|규격|사이즈|용량|크기|수량|포장\s*(방식|단위)|성분\s*표시|원재료(명)?|생물\s*여부|유통\s*기한|소비\s*기한|제조\s*일(자)?|생산자|제조원|판매원|품목|(상품|제품)\s*명|중량\s*[\/·]\s*(사이즈|규격|용량))$/]];
+const keyCat=k=>{for(const [c,r] of KEYS)if(r.test(k))return c;return null};
+const FQ=/^Q\s*\d*\s*[.．:)]\s*|^Q\s+(?=[가-힣])/i;
+function splitSource(text){
+ text=clean(text).replace(/POINT\s*\n\s*(\d{1,2})\s*\n/gi,'POINT $1\n');
+ let lines=text.split('\n').map(x=>x.trim());
+ let title=lines.find(x=>x)||'오늘의 추천 식품',first=lines.indexOf(title),c=first+1;while(c<lines.length&&!lines[c])c++;
+ let intro=c<lines.length&&!/^○/.test(lines[c])&&!HEAD.test(lines[c])&&!/^(Q\s*\d*\s*[.．:)]|POINT)/i.test(lines[c])?lines[c]:'';
+ let T=TPL[tpl],blocks=[],mk=(t,k)=>{let b={title:t,body:[],cat:k};blocks.push(b);return b};
+ let cur=mk('상품 소개',null),last=null,pts=[],m;
+ for(let i=0;i<lines.length;i++){
+  let t=lines[i];if(!t||i===first||(intro&&i===c)||/^["'“”‘’·•\-–—*]+$/.test(t)||/^\d{1,2}$/.test(t))continue;
+  if(/^○/.test(t)||HEAD.test(t)){let h=t.replace(/^○\s*/,'').replace(/^\d{1,2}\s+(?=[가-힣])/,''),k=catOf(h);last=null;
+   if(k&&!cur.body.length&&cur.cat===k)cur.title=h;else cur=mk(h,k);continue}
+  if(FQ.test(t)){last=null;if(cur.cat!=='f')cur=blocks.find(b=>b.cat==='f')||mk(DEF.f,'f');cur.body.push('Q. '+t.replace(FQ,''));continue}
+  if((m=t.match(/^POINT\s*0?(\d+)$/i))){let tl=[];while(tl.length<2&&i+1<lines.length){let n=lines[i+1];if(!n||n.length>24||/[.。!?]$/.test(n)||/(니다|세요|요)$/.test(n))break;tl.push(n);i++}
+   let h=tl.join(' ');pts.push(h||'POINT '+m[1]);last=null;cur=mk('POINT '+m[1]+(h?' · '+h:''),null);continue}
+  if(cur.cat!=='f'&&(m=t.match(/^[※*•·]?\s*([^:：]{1,16}?)\s*[:：]\s*(.+)$/))){let kc=keyCat(m[1].trim());
+   if(kc){if(kc===cur.cat){cur.body.push(t);last=cur}else{let tb=blocks.find(b=>b.cat===kc)||mk(DEF[kc],kc);tb.body.push(kc==='s'||kc==='g'?'※ '+m[1].trim()+' : '+m[2].trim():m[2].trim());last=tb}continue}}
+  if(/^[-·•]\s/.test(t)&&last)last.body.push(t);else{last=null;cur.body.push(t)}
+ }
+ blocks.forEach(b=>{if(b.title==='상품 소개')b.body=b.body.filter(x=>x!==title&&x!==intro)});
+ let out=blocks.filter(b=>b.body.length);
+ if(pts.length&&!out.some(b=>b.cat==='p'))out.push({title:DEF.p,body:pts,cat:'p'});
+ if(!out.some(b=>b.cat==='o')){let l=lines.find(x=>x&&x.length<=14&&/^(국내산|국산|수입산)/.test(x));if(l)out.push({title:DEF.o,body:[l],cat:'o'})}
+ const sec=k=>T.secs.find(d=>d.k===k);
+ out.forEach(b=>{if(b.cat==='g'&&!sec('g'))b.cat='s'});
+ let seen={};out=out.filter(b=>{if(!b.cat)return true;let f=seen[b.cat];if(f){f.body.push(...b.body);return false}seen[b.cat]=b;return true});
+ out.forEach(b=>{let d=b.cat&&sec(b.cat);if(d&&!d.re.test(b.title))b.title=d.label});
+ return {title,intro,blocks:out};
+}
+
 function buildPage(){
  let T=TPL[tpl];let {title,intro,blocks}=splitSource($('raw').value);let bl=blocks.filter(b=>b.body.length);let html='';
  html+=section('hero',title,`<div class="hero hero-${tpl}">
