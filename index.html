@@ -619,6 +619,8 @@ let previewMode=false;
 function setTpl(k,q){
  if(!TPL[k])return;
  const prev=tpl;tpl=k;$('page').dataset.template=k;
+ // 템플릿을 바꿔도 선택한 디자인 순서(기본/2번째)를 유지
+ if(!q&&prev!==k){const pc=THEMES_BY_TPL[prev]||[],i=pc.findIndex(t=>t.k===theme),nc=THEMES_BY_TPL[k]||[];if(i>=0&&nc[i])theme=nc[i].k}
  document.querySelectorAll('#tplPick button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
  renderThemePicker();
  $('page').dataset.theme=theme;$('page').dataset.design=theme;
