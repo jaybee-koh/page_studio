@@ -298,6 +298,7 @@ body.tbdrag{user-select:none;cursor:grabbing}
 body.tbdrag #page .sec{overflow:visible!important}
 .exporting .tbox{outline:none!important}.exporting .tbox .tb-bar{display:none!important}
 </style>
+<style>.page:empty{min-height:420px;display:grid;place-items:center;padding:40px;background:#fff}.page:empty::before{content:"템플릿을 고르고 상품 정보를 입력한 뒤\A‘✦ 상세페이지 자동 구성’을 눌러 주세요.";white-space:pre-line;text-align:center;color:#8a918b;font-size:14px;line-height:1.9}</style>
 </head>
 <body>
 <div id="authView"><div class="authbox"><div class="alogo">푸드 상세페이지 <em>스튜디오</em></div>
@@ -335,46 +336,7 @@ body.tbdrag #page .sec{overflow:visible!important}
 <div class="checklist" id="checkList"></div>
 <h3>디자인 선택</h3><div class="themepick" id="themePick"></div>
 <h2 style="margin-top:22px">② 상품 정보 한 번에 입력</h2>
-<div class="field"><label>상품 정보 원문</label><textarea id="raw" spellcheck="false" oninput="renderCheck()">간편 대방어 필렛 500g
-
-당일바리로 작업해서 보내드리는 대방어 8kg 급 필렛!
-
-○ 원산지 공개 합니다.
-국내산
-
-○ 상품 스펙 요약 합니다.
-※ 구성 : 대방어 1팩 + 간장와사비 2봉, 김 4봉
-※ 중량/ 사이즈 : 500g(원물 8kg 급), 간장와사비 10g * 2, 김 1.8g * 4
-※ 생물여부 : 생물
-※ 성분표시 : 대방어 100%
-
-- 간장와사비 : 양조간장[양조간장-HO{양조간장원액(탈지대두/외국산:인도,미국, 중국 등)}, 과당, 정제소금(국산), 주정, 갈색설탕], 소비톨액,정제수, 와사비분M[서양고추냉이분(중국산), 고추냉이분말(인도네시아산)], 옥수수유[옥수수배아(외국산:미국, 러시아, 브라질 등), 규소수지], 복합조미식품, 과당, 프로필렌글리콜, 산도조절제, 발효주정, 잔탄검, 식용색소황색제4호(착색료), 식용색소청색제1호(착색료) / 밀, 대두, 아황산류, 조개류(굴 포함) 함유
-- 김 : 김(국내산), 대두유(외국산:아르헨티나, 미국, 베트남 등) 참기름(외국산:인도, 에티오피아, 파키스탄 등), 가공소금 허브추출물 / 대두함유
-
-※ 포장방식 : 스킨포장(대방어) / PE포장(초장, 와사비, 김)
-
-○ 어떻게 먹어야 맛나나요?
-비리지 않게 눈에 보이는 혈압육은 전부 제거해서 보내드려요!
-원하시는 크기로 잘라주시고,
-같이 보내드리는 초장, 간장와사비, 김이랑 같이 드시면 좋습니다.
-
-○ 상품의 확실한 매리트!
-8kg급 대방어만 손질해서 보내드리는 대방어 필렛입니다.
-대방어를 부위별 필렛으로 나눠서 스킨포장해 보내드립니다.
-당일 작업해 발송하며 선도 유지를 위해 포장에 신경 씁니다.
-
-○ 알고 먹으면 더 맛있어요!
-Q. 8kg급 대방어입니다
-A. 자연산 8kg급 대방어 필렛으로 보내드립니다. 당일 작업해서 보내드리며 초장, 간장와사비, 김까지 포함된 구성입니다.
-
-Q. 부위는 어떻게 구성되어 있나요?
-A. 등살, 뱃살, 꼬리살을 한 팩에 골고루 보내드립니다. 부위별 비율은 어획 및 원물 특성에 따라 달라질 수 있습니다.
-
-Q. 방어는 충이 많은 생선입니다
-A. 꼼꼼하게 작업하고 있습니다. 자연산 생선 특성상 드물게 기생충이 발견될 수 있어 섭취 전 확인이 필요합니다. 발견된 부위는 제거하고 충분히 확인해 주세요.
-
-Q. 핏물이 있어요.
-A. 최대한 피를 빼고 혈압육을 제거해 보내드리지만 간혹 핏물이 남아 있을 수 있습니다. 키친타월로 가볍게 닦아 드시면 됩니다.</textarea></div>
+<div class="field"><label>상품 정보 원문</label><textarea id="raw" spellcheck="false" oninput="renderCheck()" placeholder="상품 정보 원문을 붙여넣거나, 위의 ‘이 템플릿 입력 양식 불러오기’를 눌러 양식을 채워 주세요."></textarea></div>
 <div class="note">상품 정보를 원문 그대로 붙여넣고 ‘자동 구성’을 누르세요. 순서나 형식이 달라도 됩니다. ‘○ 제목’, ‘원산지 : 국내산’, ‘보관방법 : …’, ‘Q.’ 질문, ‘POINT 01’ 같은 핵심 단어를 찾아 알아서 알맞은 섹션에 배치합니다. 제목, 원산지, 스펙, 섭취 방법, 상품 특징, FAQ 등을 항목별로 나눠 배치합니다. 자동 분류 후 미리보기에서 문구를 직접 고칠 수 있습니다.</div>
 <button class="dark" style="width:100%;margin-top:12px" onclick="buildPage()">✦ 상세페이지 자동 구성</button>
 <h3>③ 상품 이미지 등록</h3><div class="field"><label>대표 상품 이미지</label><div class="upload">첫 화면에 사용할 사진<input type="file" accept="image/*" onchange="addImage(event,'heroImg')"></div></div>
@@ -617,6 +579,7 @@ function matchSecs(T,bl){
  return {matched,extra:bl.filter(x=>!used.has(x)&&has(x)),used};
 }
 function buildPage(){
+ if(!$('raw').value.trim()){toast('상품 정보를 먼저 입력해 주세요.');return}
  let T=TPL[tpl];let {title,intro,blocks}=splitSource($('raw').value);let bl=blocks.filter(b=>b.body.length);let html='';
  html+=section('hero',title,`<div class="hero hero-${tpl}">
     <div class="hero-copy"><div class="eyebrow">${T.eyebrow}</div>
@@ -653,12 +616,20 @@ function renderThemePicker(){
 }
 function setTpl(k,q){
  if(!TPL[k])return;
- tpl=k;$('page').dataset.template=k;
+ const prev=tpl;tpl=k;$('page').dataset.template=k;
  document.querySelectorAll('#tplPick button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
  renderThemePicker();
  $('page').dataset.theme=theme;$('page').dataset.design=theme;
  renderCheck();
- if(!q)toast(TPL[k].name+' 상품 템플릿 선택 · 기본 디자인과 전용 디자인 중 선택하세요.');
+ if(!q){
+  const built=$('page').querySelector(':scope>.sec'),r=$('raw');
+  if(prev!==k&&built&&r.value.trim()){
+   if(TPL[prev]&&r.value.trim()===TPL[prev].sample.trim())r.value=TPL[k].sample;
+   renderCheck();
+   if(r.value.trim()){buildPage();return}
+  }
+  toast(TPL[k].name+' 상품 템플릿 선택 · 기본 디자인과 전용 디자인 중 선택하세요.');
+ }
 }
 function setTheme(k){
  const choices=THEMES_BY_TPL[tpl]||[];
@@ -1035,7 +1006,7 @@ function upgradeTools(){
  });
 }
 
-initPickers();setTheme('basic');setTpl('fish',1);buildPage();History.init();
+initPickers();setTheme('basic');setTpl('fish',1);renderCheck();refreshList();History.init();
 </script>
 <script>
 const API='/api/',TK='zt';let ADM=[],ADMTAB='req',idOK='';
