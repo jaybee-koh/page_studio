@@ -615,12 +615,12 @@ function renderThemePicker(){
  $('themePick').innerHTML=choices.map(t=>`<button class="design-card" data-k="${t.k}" onclick="setTheme('${t.k}')"><span class="design-swatch">${t.c.map(c=>`<i style="background:${c}"></i>`).join('')}</span><span class="design-copy"><b>${t.n}</b><small>${t.desc}</small></span></button>`).join('');
  document.querySelectorAll('#themePick button').forEach(b=>b.classList.toggle('on',b.dataset.k===theme));
 }
-let previewMode=false;
+let previewMode=false,designSlot=0;
 function setTpl(k,q){
  if(!TPL[k])return;
  const prev=tpl;tpl=k;$('page').dataset.template=k;
  // 템플릿을 바꿔도 선택한 디자인 순서(기본/2번째)를 유지
- if(!q&&prev!==k){const pc=THEMES_BY_TPL[prev]||[],i=pc.findIndex(t=>t.k===theme),nc=THEMES_BY_TPL[k]||[];if(i>=0&&nc[i])theme=nc[i].k}
+ if(!q){const nc=THEMES_BY_TPL[k]||[];if(nc[designSlot])theme=nc[designSlot].k}
  document.querySelectorAll('#tplPick button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
  renderThemePicker();
  $('page').dataset.theme=theme;$('page').dataset.design=theme;
@@ -639,7 +639,7 @@ function setTpl(k,q){
 function setTheme(k){
  const choices=THEMES_BY_TPL[tpl]||[];
  if(!choices.some(t=>t.k===k))k='basic';
- theme=k;$('page').dataset.theme=k;$('page').dataset.design=k;
+ theme=k;designSlot=Math.max(0,choices.findIndex(t=>t.k===k));$('page').dataset.theme=k;$('page').dataset.design=k;
  document.querySelectorAll('#themePick button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
 }
 function loadSample(){let r=$('raw'),cur=r.value.trim();if(cur&&!Object.values(TPL).some(t=>t.sample.trim()===cur)&&!confirm('현재 입력한 상품 정보가 '+TPL[tpl].name+' 템플릿 양식으로 바뀝니다. 계속할까요?'))return;r.value=TPL[tpl].sample;renderCheck();toast(TPL[tpl].name+' 입력 양식을 불러왔습니다. 내용을 채운 뒤 ‘자동 구성’을 누르세요.')}
