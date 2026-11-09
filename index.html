@@ -173,6 +173,69 @@
  .page[data-template] .sec h2{font-size:25px}
 }
 
+
+/* DESIGN SELECTOR: actual layout choices, not color swatches */
+#themePick{display:grid;grid-template-columns:1fr;gap:8px}
+#themePick .design-card{display:flex;align-items:center;gap:10px;text-align:left;padding:10px;border:1px solid #e2e5df;border-radius:12px;background:#fff;min-height:66px}
+#themePick .design-card.on{border:2px solid #486b50;background:#f5f8f2;padding:9px}
+#themePick .design-swatch{display:flex;flex:none;width:58px;height:42px;border-radius:10px;overflow:hidden;box-shadow:inset 0 0 0 1px #0000000c}
+#themePick .design-swatch i{flex:1}
+#themePick .design-copy{display:grid;gap:4px}
+#themePick .design-copy b{font-size:12px}
+#themePick .design-copy small{font-size:10px;color:#858b85;font-weight:400;line-height:1.35}
+.page[data-design="basic"]{ }
+.page[data-design="farm-new"]{--ink:#294333;--accent:#62834e;--card:#f1f4e9;--r:28px;font-family:"Noto Sans KR",sans-serif}
+.page[data-design="farm-new"] .hero{min-height:650px;grid-template-columns:.9fr 1.1fr;background:radial-gradient(ellipse at 10% 5%,#fff 0,transparent 42%),linear-gradient(145deg,#e5eddb,#f8f4e8);border-radius:0 0 100px 0;padding:64px 48px 28px}
+.page[data-design="farm-new"] .hero-visual:before{border:0;background:#d4e1c7;border-radius:48% 52% 44% 56%;inset:-22px 10px 15px -20px;transform:rotate(-8deg)}
+.page[data-design="farm-new"] .hero img,.page[data-design="farm-new"] .hero .photoempty{height:450px;border-radius:48% 48% 42% 42%;box-shadow:0 24px 55px #38533326}
+.page[data-design="farm-new"] .hero-stamp{border:0;border-radius:40px;background:#54764a;color:white;padding:12px 18px}
+.page[data-design="farm-new"] .hero-bottomline{border:0;background:#ffffffa8;border-radius:30px;padding:16px 20px}
+.page[data-design="farm-new"] .origin{margin:24px 30px;border-radius:34px;background:#34543b}
+.page[data-design="farm-new"] .specitem,.page[data-design="farm-new"] .point{border-radius:22px;background:#f0f4e9}
+.page[data-design="farm-new"] .point b{border-radius:50%;background:#62834e}
+.page[data-design="farm-new"] .featurehead:before{height:5px;width:58px;border-radius:8px}
+.page[data-design="farm-new"] .highlight{border-radius:42px;margin:22px;background:#edf2e5}
+.page[data-design="farm-new"] .end{border-radius:70px 70px 0 0;background:#34543b}
+.page[data-design="fish-new"]{--ink:#12384c;--accent:#1686a3;--card:#edf6f7;--r:26px;font-family:"Noto Sans KR",sans-serif}
+.page[data-design="fish-new"] .hero{min-height:660px;background:linear-gradient(160deg,#e5f5f7 0%,#cce9ef 52%,#f5fbfa 100%);border-radius:0 0 110px 0;padding:62px 48px 28px}
+.page[data-design="fish-new"] .hero:before{content:"";position:absolute;right:-95px;top:-170px;width:430px;height:430px;border:1px solid #1686a333;border-radius:50%;box-shadow:0 0 0 24px #ffffff30,0 0 0 52px #1686a312}
+.page[data-design="fish-new"] .hero-visual:before{border:0;background:#9ed4df;border-radius:38% 62% 58% 42%;transform:rotate(8deg);inset:-18px 12px 18px -16px}
+.page[data-design="fish-new"] .hero img,.page[data-design="fish-new"] .hero .photoempty{height:450px;border-radius:42% 42% 18px 42%;box-shadow:0 24px 50px #0c526326}
+.page[data-design="fish-new"] .hero-stamp{border:1px solid #1686a3;border-radius:30px;color:#12627c}
+.page[data-design="fish-new"] .hero-bottomline{border:0;border-radius:30px;background:#ffffff9c;padding:16px 20px}
+.page[data-design="fish-new"] .origin{margin:24px 30px;border-radius:32px 90px 32px 90px;background:#0e4963}
+.page[data-design="fish-new"] .specitem{border-radius:20px 20px 5px 20px;background:#eaf5f7;border-top:0}
+.page[data-design="fish-new"] .point{border-radius:28px 8px 28px 8px;background:#eaf5f7}
+.page[data-design="fish-new"] .point b{border-radius:50%;background:#1686a3}
+.page[data-design="fish-new"] .highlight{border-radius:90px 20px 90px 20px;margin:22px;background:#e7f4f6}
+.page[data-design="fish-new"] .end{border-radius:90px 90px 0 0;background:#0b344b}
+/* Improve title contrast on the light Ocean Blue cover */
+.page[data-design="fish-new"] .hero{color:#12384c}
+.page[data-design="fish-new"] .hero h1{color:#0b344b;text-shadow:none}
+.page[data-design="fish-new"] .hero .eyebrow{color:#167d9b}
+.page[data-design="fish-new"] .hero .sub{color:#355d6b}
+.page[data-design="meat-new"]{--ink:#342522;--accent:#963e34;--card:#f5ece5;--r:20px;font-family:"Noto Serif KR","Nanum Myeongjo",serif}
+.page[data-design="meat-new"] .hero{min-height:650px;background:radial-gradient(ellipse at 100% 0,#63443b 0,transparent 48%),linear-gradient(135deg,#2a201e,#49302b);border-radius:0 0 75px 0;padding:62px 48px 28px}
+.page[data-design="meat-new"] .hero-visual:before{border:1px solid #c9a46a;border-radius:48% 48% 8px 8px;inset:-18px 14px 18px -14px;transform:rotate(4deg)}
+.page[data-design="meat-new"] .hero img,.page[data-design="meat-new"] .hero .photoempty{height:450px;border-radius:48% 48% 8px 8px}
+.page[data-design="meat-new"] .hero-stamp{border:1px solid #c9a46a;border-radius:4px;color:#e8c990}
+.page[data-design="meat-new"] .hero-bottomline{border-color:#c9a46a;color:#e8d6bd}
+.page[data-design="meat-new"] .origin{margin:24px 30px;border-radius:8px 50px 8px 50px;background:#382724}
+.page[data-design="meat-new"] .specitem{border-radius:4px 22px 4px 22px;background:#f4e9df;border:1px solid #e3d2c1}
+.page[data-design="meat-new"] .point{border-radius:4px 24px 4px 24px;background:#f3e8df}
+.page[data-design="meat-new"] .point b{border-radius:50%;background:#963e34}
+.page[data-design="meat-new"] .highlight{border-radius:6px 60px 6px 60px;margin:22px;background:#f4e9df}
+.page[data-design="meat-new"] .end{border-radius:65px 0 0 0;background:#2a201e}
+@media(max-width:760px){
+ #themePick{grid-template-columns:1fr 1fr}
+ #themePick .design-card{min-height:72px;padding:8px}
+ #themePick .design-swatch{width:38px;height:34px}
+ #themePick .design-copy small{display:none}
+ .page[data-design] .hero{border-radius:0 0 45px 0}
+ .page[data-design] .origin{margin:14px;border-radius:24px}
+ .page[data-design] .end{border-radius:40px 40px 0 0}
+}
+
 </style><style id="bodyTextDefault">
 /* 본문 글자 기본 크기 22px (제목 h1·h2와 장식용 작은 라벨은 제외) */
 #page .hero .sub,#page .sec p,#page .specitem b,#page .copy,#page .notice,#page .notice .copy,#page .q,#page .a,#page .ingredients,#page .point span{font-size:22px}
@@ -408,7 +471,20 @@ A. [답변]
 ○ 교환 · 환불 안내
 [접수 기한, 사진 첨부 방법, 환불 기준]`}
 };
-const THEMES=[{k:'green',n:'초록들판',c:['#f5f0e6','#a87943','#293a31']},{k:'sea',n:'맑은바다',c:['#e8f1f6','#2d7ca3','#14324a']},{k:'meat',n:'숯불정육점',c:['#2a1f1d','#b3412f','#efe3dc']},{k:'mono',n:'미니멀 화이트',c:['#f4f4f4','#111','#111']},{k:'warm',n:'따스한 식탁',c:['#fdf0e0','#e0792b','#6b3f24']}];
+const THEMES_BY_TPL={
+ farm:[
+  {k:'basic',n:'기본 디자인',desc:'현재 농산물 기본 레이아웃',c:['#f5f0e6','#a87943','#293a31']},
+  {k:'farm-new',n:'싱그러운 산지',desc:'곡선형 비주얼과 자연 소재의 산지 감성',c:['#e8efe1','#66824d','#f7f4e9']}
+ ],
+ fish:[
+  {k:'basic',n:'기본 디자인',desc:'현재 수산물 기본 레이아웃',c:['#f5f0e6','#a87943','#293a31']},
+  {k:'fish-new',n:'오션 블루',desc:'파도 레이어와 시원한 프리미엄 무드',c:['#e4f3f6','#167d9b','#092f49']}
+ ],
+ meat:[
+  {k:'basic',n:'기본 디자인',desc:'현재 축산물 기본 레이아웃',c:['#f5f0e6','#a87943','#293a31']},
+  {k:'meat-new',n:'부처리 셀렉션',desc:'아치 프레임과 클래식 정육점 무드',c:['#f2e5dc','#8e342d','#302321']}
+ ]
+};
 const LN=a=>a.map(x=>x.replace(/^[-·•]\s*/,''));
 function lst(d,b,badge){return `<div class="inner"><div class="center"><div class="tag">${d.tag}</div><h2 contenteditable="true">${esc(b.title)}</h2></div><div class="pointlist">${LN(b.body).map((l,i)=>`<div class="point"><b>${badge||i+1}</b><span contenteditable="true">${esc(l)}</span></div>`).join('')}</div></div>`}
 const R={
@@ -445,9 +521,31 @@ function buildPage(){
  toast(miss.length?`${T.name} 템플릿 구성 완료 · 필수 섹션 누락: ${miss.join(', ')}`:`${T.name} 템플릿으로 상세페이지를 구성했습니다.`);
 }
 function renderCheck(){let T=TPL[tpl];let bl=splitSource($('raw').value).blocks.filter(b=>b.body.length);$('checkList').innerHTML=`<h3>${T.name} 템플릿 섹션 체크</h3>`+T.secs.map(d=>{let ok=bl.some(b=>d.re.test(b.title));return `<div class="chk ${ok?'ok':d.req?'no':'opt'}"><span>${d.label}</span><b>${ok?'✓ 입력됨':d.req?'필수 · 없음':'권장'}</b></div>`}).join('')+`<div class="note" style="margin-top:8px">${T.tip}</div>`;$('flowNote').innerHTML='<b>'+T.name+' 상세페이지 흐름</b><br>1. 첫 화면<br>'+T.secs.map((d,i)=>(i+2)+'. '+d.label).join('<br>')}
-function initPickers(){$('tplPick').innerHTML=Object.entries(TPL).map(([k,t])=>`<button data-k="${k}" onclick="setTpl('${k}')"><div style="font-size:20px">${t.ico}</div>${t.name}</button>`).join('');$('themePick').innerHTML=THEMES.map(t=>`<button data-k="${t.k}" onclick="setTheme('${t.k}')"><span class="chips">${t.c.map(c=>`<i style="background:${c}"></i>`).join('')}</span>${t.n}</button>`).join('')}
-function setTpl(k,q){tpl=k;$('page').dataset.template=k;document.querySelectorAll('#tplPick button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));renderCheck();if(!q)toast(TPL[k].name+' 템플릿 선택 · 디자인이 적용되었습니다. 정보를 입력하고 ‘자동 구성’을 누르세요.')}
-function setTheme(k){theme=k;$('page').dataset.theme=k;document.querySelectorAll('#themePick button').forEach(b=>b.classList.toggle('on',b.dataset.k===k))}
+function initPickers(){
+ $('tplPick').innerHTML=Object.entries(TPL).map(([k,t])=>`<button data-k="${k}" onclick="setTpl('${k}')"><div style="font-size:20px">${t.ico}</div>${t.name}</button>`).join('');
+ renderThemePicker();
+}
+function renderThemePicker(){
+ const choices=THEMES_BY_TPL[tpl]||THEMES_BY_TPL.farm;
+ if(!choices.some(t=>t.k===theme))theme='basic';
+ $('themePick').innerHTML=choices.map(t=>`<button class="design-card" data-k="${t.k}" onclick="setTheme('${t.k}')"><span class="design-swatch">${t.c.map(c=>`<i style="background:${c}"></i>`).join('')}</span><span class="design-copy"><b>${t.n}</b><small>${t.desc}</small></span></button>`).join('');
+ document.querySelectorAll('#themePick button').forEach(b=>b.classList.toggle('on',b.dataset.k===theme));
+}
+function setTpl(k,q){
+ if(!TPL[k])return;
+ tpl=k;$('page').dataset.template=k;
+ document.querySelectorAll('#tplPick button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+ renderThemePicker();
+ $('page').dataset.theme=theme;$('page').dataset.design=theme;
+ renderCheck();
+ if(!q)toast(TPL[k].name+' 상품 템플릿 선택 · 기본 디자인과 전용 디자인 중 선택하세요.');
+}
+function setTheme(k){
+ const choices=THEMES_BY_TPL[tpl]||[];
+ if(!choices.some(t=>t.k===k))k='basic';
+ theme=k;$('page').dataset.theme=k;$('page').dataset.design=k;
+ document.querySelectorAll('#themePick button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+}
 function loadSample(){let r=$('raw'),cur=r.value.trim();if(cur&&!Object.values(TPL).some(t=>t.sample.trim()===cur)&&!confirm('현재 입력한 상품 정보가 '+TPL[tpl].name+' 템플릿 양식으로 바뀝니다. 계속할까요?'))return;r.value=TPL[tpl].sample;renderCheck();toast(TPL[tpl].name+' 입력 양식을 불러왔습니다. 내용을 채운 뒤 ‘자동 구성’을 누르세요.')}
 function colorToHex(value){
  const m=String(value||'').match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
@@ -721,5 +819,5 @@ document.addEventListener('beforeinput',e=>{
  if(e.inputType==='historyUndo'){e.preventDefault();undo()}
  else if(e.inputType==='historyRedo'){e.preventDefault();redo()}
 },true);
-initPickers();setTheme('green');setTpl('fish',1);buildPage();History.init();
+initPickers();setTheme('basic');setTpl('fish',1);buildPage();History.init();
 </script></body></html>
