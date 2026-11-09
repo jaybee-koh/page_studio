@@ -18,10 +18,20 @@ async function mail(env,to,subject,html){
   const r=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+env.RESEND_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({from:env.MAIL_FROM||'onboarding@resend.dev',to:[to],subject,html})});
   if(!r.ok)throw E('메일 발송에 실패했습니다. 이메일 주소와 발송 설정을 확인해 주세요.',502);
 }
-async function gem(key,sys,user,max){
-  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
-    body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{temperature:.7,maxOutputTokens:max,thinkingConfig:{thinkingBudget:0}}})});
-  if(!r.ok)throw E(r.status===400||r.status===403?'제미나이 API 키가 올바르지 않거나 권한이 없습니다.':'제미나이 호출에 실패했습니다. ('+r.status+')',502);
+const GL='https://generativelanguage.googleapis.com/v1beta/';
+const badKey=c=>c===400||c===401||c===403;
+async function pickModel(key){
+  const r=await fetch(GL+'models?pageSize=100',{headers:{'x-goog-api-key':key}});
+  if(!r.ok)throw E(badKey(r.status)?'제미나이 API 키가 올바르지 않거나 권한이 없습니다.':'모델 목록을 가져오지 못했습니다. ('+r.status+')',502);
+  const l=((await r.json()).models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
+  const ok=l.filter(n=>/^gemini-[\d.]+-flash$/.test(n)).sort((x,y)=>parseFloat(y.split('-')[1])-parseFloat(x.split('-')[1]));
+  const m=ok[0]||l.find(n=>/flash/.test(n)&&!/lite|image|tts|live|audio/.test(n))||l[0];
+  if(!m)throw E('사용 가능한 제미나이 모델이 없습니다.',502);return m;
+}
+async function gem(key,model,sys,user,max){
+  const r=await fetch(GL+'models/'+model+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
+    body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{temperature:.7,maxOutputTokens:max}})});
+  if(!r.ok)throw E(badKey(r.status)?'제미나이 API 키가 올바르지 않거나 권한이 없습니다.':'제미나이 호출에 실패했습니다. ('+r.status+', 모델: '+model+')',502);
   const d=await r.json();return (d.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('').replace(/\*\*/g,'').replace(/^```\w*\n?|\n?```$/g,'').trim();
 }
 async function auth(env,req){
@@ -132,14 +142,16 @@ async function route(p,req,env,b){
 
   if(p==='gemini/status')return J({connected:!!await KEY()});
   if(p==='gemini/save'){needAdmin();const key=str('key');
-  if(!/^[\w.-]{20,}$/.test(key))throw E('API 키 형식이 올바르지 않습니다.');
-    await gem(key,'Reply with OK.','ping',16);
-    await DB.prepare("INSERT OR REPLACE INTO settings(k,v) VALUES('gemini_key',?)").bind(key).run();return J({ok:1})}
+    if(key.length<20)throw E('API 키 형식이 올바르지 않습니다.');
+    const model=await pickModel(key);await gem(key,model,'Reply with OK.','ping',64);
+    await DB.prepare("INSERT OR REPLACE INTO settings(k,v) VALUES('gemini_key',?)").bind(key).run();
+    await DB.prepare("INSERT OR REPLACE INTO settings(k,v) VALUES('gemini_model',?)").bind(model).run();return J({ok:1,model})}
   if(p==='gemini/remove'){needAdmin();await DB.prepare("DELETE FROM settings WHERE k='gemini_key'").run();return J({ok:1})}
   if(p==='gemini/generate'){const key=await KEY();if(!key)throw E('제미나이가 연결되어 있지 않습니다. 관리자에게 문의해 주세요.');
     const raw=str('raw');if(!raw||raw.length>20000)throw E('상품 정보를 확인해 주세요. (최대 2만자)');
     const secs=(Array.isArray(b.sections)?b.sections:[]).slice(0,20).map(s=>`○ ${String(s.label||'').slice(0,40)} — ${HINT[s.kind]||HINT.text}${s.req?' (필수)':''}`).join('\n');
-    const text=await gem(key,SYS,`상품 템플릿: ${String(b.tpl||'').slice(0,20)}\n\n[섹션 구성 — 이 순서와 이름 그대로 사용]\n${secs}\n\n[입력된 상품 정보]\n${raw}`,8192);
+    const model=(await DB.prepare("SELECT v FROM settings WHERE k='gemini_model'").first())?.v||await pickModel(key);
+    const text=await gem(key,model,SYS,`상품 템플릿: ${String(b.tpl||'').slice(0,20)}\n\n[섹션 구성 — 이 순서와 이름 그대로 사용]\n${secs}\n\n[입력된 상품 정보]\n${raw}`,16384);
     if(!text)throw E('제미나이가 응답을 만들지 못했습니다. 다시 시도해 주세요.',502);return J({text})}
 
   throw E('존재하지 않는 요청입니다.',404);
