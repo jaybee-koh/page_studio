@@ -147,8 +147,7 @@ async function route(p,req,env,b){
   if(p==='gemini/status')return J({connected:!!await KEY()});
   if(p==='gemini/save'){needAdmin();const key=str('key');
     if(key.length<20)throw E('API 키 형식이 올바르지 않습니다.');
-    let model,er;for(const m of await pickModels(key)){try{await gem(key,m,'Reply with OK.','ping',64);model=m;break}catch(e){er=e}}
-    if(!model)throw er;
+    const model=await pickModel(key); // 모델 목록 조회가 성공하면 키가 유효함 (시험 호출 생략)
     await DB.prepare("INSERT OR REPLACE INTO settings(k,v) VALUES('gemini_key',?)").bind(key).run();
     await DB.prepare("INSERT OR REPLACE INTO settings(k,v) VALUES('gemini_model',?)").bind(model).run();return J({ok:1,model})}
   if(p==='gemini/remove'){needAdmin();await DB.prepare("DELETE FROM settings WHERE k='gemini_key'").run();return J({ok:1})}
