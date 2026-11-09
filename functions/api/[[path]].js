@@ -20,17 +20,21 @@ async function mail(env,to,subject,html){
 }
 const GL='https://generativelanguage.googleapis.com/v1beta/';
 const badKey=c=>c===400||c===401||c===403;
-async function pickModel(key){
+async function pickModels(key){
   const r=await fetch(GL+'models?pageSize=100',{headers:{'x-goog-api-key':key}});
   if(!r.ok)throw E(badKey(r.status)?'제미나이 API 키가 올바르지 않거나 권한이 없습니다.':'모델 목록을 가져오지 못했습니다. ('+r.status+')',502);
   const l=((await r.json()).models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
   const ok=l.filter(n=>/^gemini-[\d.]+-flash$/.test(n)).sort((x,y)=>parseFloat(y.split('-')[1])-parseFloat(x.split('-')[1]));
-  const m=ok[0]||l.find(n=>/flash/.test(n)&&!/lite|image|tts|live|audio/.test(n))||l[0];
-  if(!m)throw E('사용 가능한 제미나이 모델이 없습니다.',502);return m;
+  const m=ok.length?ok.slice(0,3):[l.find(n=>/flash/.test(n)&&!/lite|image|tts|live|audio/.test(n))||l[0]].filter(Boolean);
+  if(!m.length)throw E('사용 가능한 제미나이 모델이 없습니다.',502);return m;
 }
+const pickModel=async k=>(await pickModels(k))[0];
 async function gem(key,model,sys,user,max){
-  const r=await fetch(GL+'models/'+model+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
-    body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{temperature:.7,maxOutputTokens:max}})});
+  let r;for(let i=0;i<3;i++){
+    r=await fetch(GL+'models/'+model+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
+      body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:user}]}],generationConfig:{temperature:.7,maxOutputTokens:max}})});
+    if(![429,500,503].includes(r.status))break;await new Promise(o=>setTimeout(o,1500*(i+1)));
+  }
   if(!r.ok)throw E(badKey(r.status)?'제미나이 API 키가 올바르지 않거나 권한이 없습니다.':'제미나이 호출에 실패했습니다. ('+r.status+', 모델: '+model+')',502);
   const d=await r.json();return (d.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('').replace(/\*\*/g,'').replace(/^```\w*\n?|\n?```$/g,'').trim();
 }
@@ -143,7 +147,8 @@ async function route(p,req,env,b){
   if(p==='gemini/status')return J({connected:!!await KEY()});
   if(p==='gemini/save'){needAdmin();const key=str('key');
     if(key.length<20)throw E('API 키 형식이 올바르지 않습니다.');
-    const model=await pickModel(key);await gem(key,model,'Reply with OK.','ping',64);
+    let model,er;for(const m of await pickModels(key)){try{await gem(key,m,'Reply with OK.','ping',64);model=m;break}catch(e){er=e}}
+    if(!model)throw er;
     await DB.prepare("INSERT OR REPLACE INTO settings(k,v) VALUES('gemini_key',?)").bind(key).run();
     await DB.prepare("INSERT OR REPLACE INTO settings(k,v) VALUES('gemini_model',?)").bind(model).run();return J({ok:1,model})}
   if(p==='gemini/remove'){needAdmin();await DB.prepare("DELETE FROM settings WHERE k='gemini_key'").run();return J({ok:1})}
