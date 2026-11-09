@@ -236,6 +236,29 @@
  .page[data-design] .end{border-radius:40px 40px 0 0}
 }
 
+
+#toast{z-index:200}
+#authView{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#e8efe9,#f7f3eb);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.authbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px 28px;width:100%;max-width:400px;box-shadow:0 10px 40px #17251b1f}
+.alogo{text-align:center;font-size:20px;font-weight:900;margin-bottom:18px}.alogo em{font-style:normal;color:var(--green)}
+.ap{display:none;flex-direction:column;gap:10px}.ap.on{display:flex}.ap h2{margin:0 0 4px;font-size:17px}
+.ap input:not([type=checkbox]),.mod input{width:100%;border:1px solid #dcded9;border-radius:8px;padding:11px;outline:none}
+.ap .row{display:flex;gap:6px}.ap .row button{white-space:nowrap}.ap button:disabled,.urow button:disabled{opacity:.4;cursor:default}
+.chk{font-size:13px;display:flex;gap:6px;align-items:center}
+.alinks{display:flex;justify-content:space-between;font-size:12px}.alinks a,.back{cursor:pointer;color:var(--green);font-weight:700;font-size:13px}
+.msg{font-size:12px;min-height:16px;color:#c0392b;line-height:1.5}.msg.ok{color:#2e7d4f}
+#adminView{position:fixed;inset:0;z-index:90;background:#f2f3f1;display:none;flex-direction:column}#adminView.on{display:flex}
+.ahead{min-height:62px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:8px 20px;gap:10px;flex-wrap:wrap}
+.abody{flex:1;display:grid;grid-template-columns:200px 1fr;min-height:0}.aside{background:#fff;border-right:1px solid var(--line);padding:14px}
+.aside div{padding:11px 12px;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:4px}.aside div.on{background:var(--navy);color:#fff}
+.amain{padding:20px;overflow:auto}
+.urow{display:grid;grid-template-columns:1.2fr 1.6fr 1fr 1fr 80px auto;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13px;word-break:break-all}
+.urow.h{background:none;border:0;font-weight:800;color:var(--muted)}.urow button{padding:7px 11px;font-size:12px}.ua{display:flex;gap:6px;justify-content:flex-end}
+.badge{font-size:11px;padding:3px 8px;border-radius:99px;font-weight:800;text-align:center}.badge.p{background:#fff1dc;color:#a8651d}.badge.b{background:#fde3e0;color:#b03a2e}.badge.a{background:#e2f2e8;color:#2e7d4f}
+.red{background:#c0392b;color:#fff}
+.mbg{position:fixed;inset:0;background:#0007;z-index:120;display:none;align-items:center;justify-content:center;padding:16px}.mbg.on{display:flex}
+.mod{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:10px}
+@media(max-width:800px){.abody{grid-template-columns:1fr}.aside{display:flex;gap:6px;border-right:0}.urow{grid-template-columns:1fr 1fr}.urow.h{display:none}}
 </style><style id="bodyTextDefault">
 /* 본문 글자 기본 크기 25px (제목 h1·h2와 장식용 작은 라벨은 제외) */
 #page .hero .sub,#page .sec p,#page .specitem b,#page .copy,#page .notice,#page .notice .copy,#page .q,#page .a,#page .ingredients,#page .point span{font-size:25px}
@@ -277,7 +300,35 @@ body.tbdrag #page .sec{overflow:visible!important}
 </style>
 </head>
 <body>
-<header class="top"><div class="logo">푸드 상세페이지 <em>스튜디오</em></div><div class="actions"><button class="light tbtn" id="textAddTop" onclick="toggleTextMode()">T 텍스트 추가</button><button class="light" onclick="saveProject()">프로젝트 저장</button><button class="light" onclick="document.getElementById('load').click()">불러오기</button><button class="gold" onclick="downloadJPG()">JPG 다운로드</button><input id="load" type="file" accept=".json" hidden onchange="loadProject(event)"></div></header>
+<div id="authView"><div class="authbox"><div class="alogo">푸드 상세페이지 <em>스튜디오</em></div>
+<div class="ap on" id="p-login"><h2>로그인</h2>
+<input id="l-id" placeholder="아이디" autocomplete="username"><input id="l-pw" type="password" placeholder="비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+<label class="chk"><input type="checkbox" id="l-save"> 아이디 저장</label><button class="dark" onclick="doLogin()">로그인</button>
+<div class="msg" id="m-login"></div>
+<div class="row"><button class="light" style="flex:1" onclick="go('findId')">아이디 찾기</button><button class="light" style="flex:1" onclick="go('findPw')">비밀번호 찾기</button></div>
+<div class="row"><button class="light" style="flex:1" onclick="go('chPw')">비밀번호 변경</button><button class="gold" style="flex:1" onclick="go('signup')">회원가입</button></div></div>
+<div class="ap" id="p-signup"><h2>회원가입</h2>
+<div class="row"><input id="s-id" placeholder="아이디 (영문/숫자/_ 4~20자)" oninput="sgBtn()"><button class="light" onclick="chkId()">중복확인</button></div>
+<input id="s-co" placeholder="업체명" maxlength="50">
+<div class="row"><input id="s-mail" type="email" placeholder="이메일" oninput="sgBtn()"><button class="light" onclick="sendCode()">인증하기</button></div>
+<div class="row"><input id="s-code" placeholder="인증번호 6자리" maxlength="6"><button class="light" onclick="verifyCode()">인증확인</button></div>
+<input id="s-pw" type="password" placeholder="패스워드 (8자 이상)" autocomplete="new-password"><input id="s-pw2" type="password" placeholder="패스워드 확인" autocomplete="new-password">
+<div class="msg" id="m-signup"></div><button class="dark" id="s-go" disabled onclick="doSignup()">회원가입</button><a class="back" onclick="go('login')">← 로그인으로</a></div>
+<div class="ap" id="p-findId"><h2>아이디 찾기</h2><input id="f-co" placeholder="가입 시 입력한 업체명"><input id="f-mail" type="email" placeholder="가입 시 입력한 이메일">
+<div class="msg" id="m-findId"></div><button class="dark" onclick="doFindId()">아이디 찾기</button><a class="back" onclick="go('login')">← 로그인으로</a></div>
+<div class="ap" id="p-findPw"><h2>비밀번호 찾기</h2><input id="r-id" placeholder="아이디"><input id="r-mail" type="email" placeholder="가입 시 입력한 이메일">
+<div class="msg" id="m-findPw"></div><button class="dark" onclick="doResetPw()">초기화 비밀번호 메일 받기</button><a class="back" onclick="go('login')">← 로그인으로</a></div>
+<div class="ap" id="p-chPw"><h2>비밀번호 변경</h2><input id="c-id" placeholder="아이디"><input id="c-old" type="password" placeholder="현재 비밀번호"><input id="c-pw" type="password" placeholder="새 비밀번호 (8자 이상)"><input id="c-pw2" type="password" placeholder="새 비밀번호 확인">
+<div class="msg" id="m-chPw"></div><button class="dark" onclick="doChPw()">비밀번호 변경</button><a class="back" onclick="go('login')">← 로그인으로</a></div>
+</div></div>
+<div id="adminView"><div class="ahead"><div class="logo">관리자 <em>페이지</em></div>
+<div class="actions" style="align-items:center;flex-wrap:wrap"><b id="gStat" style="font-size:12px"></b><button class="gold" onclick="openGem()">제미나이 API 연결하기</button><button class="light" id="gOff" onclick="offGem()">해제하기</button><button class="dark" onclick="hideAdmin()">← 스튜디오로</button></div></div>
+<div class="abody"><div class="aside"><div data-t="req" onclick="admTab('req')">승인요청</div><div data-t="mem" onclick="admTab('mem')">회원관리</div></div><div class="amain" id="amain"></div></div></div>
+<div class="mbg" id="gModal"><div class="mod"><h2 style="margin:0;font-size:16px">제미나이 API 연결</h2><div class="note">Google AI Studio에서 발급한 API 키를 입력하세요. 서버(D1)에 저장되며 브라우저에는 노출되지 않습니다.</div>
+<input id="g-key" type="password" placeholder="Gemini API 키" autocomplete="off"><div class="msg" id="g-msg"></div>
+<div style="display:flex;gap:8px"><button class="dark" style="flex:1" onclick="saveGem()">저장</button><button class="light" style="flex:1" onclick="$('gModal').classList.remove('on')">취소</button></div></div></div>
+
+<header class="top"><div class="logo">푸드 상세페이지 <em>스튜디오</em></div><div class="actions"><button class="gold" id="adminGo" style="display:none" onclick="showAdmin()">⚙ 관리자 페이지 가기</button><button class="light tbtn" id="textAddTop" onclick="toggleTextMode()">T 텍스트 추가</button><button class="light" onclick="saveProject()">프로젝트 저장</button><button class="light" onclick="document.getElementById('load').click()">불러오기</button><button class="gold" onclick="downloadJPG()">JPG 다운로드</button><input id="load" type="file" accept=".json" hidden onchange="loadProject(event)"><button class="light" onclick="logout()">로그아웃</button></div></header>
 <main class="layout">
 <aside class="panel">
 <h2>① 템플릿 · 디자인</h2>
@@ -328,7 +379,7 @@ A. 꼼꼼하게 작업하고 있습니다. 자연산 생선 특성상 드물게 
 Q. 핏물이 있어요.
 A. 최대한 피를 빼고 혈압육을 제거해 보내드리지만 간혹 핏물이 남아 있을 수 있습니다. 키친타월로 가볍게 닦아 드시면 됩니다.</textarea></div>
 <div class="note">상품 정보를 원문 그대로 붙여넣고 ‘자동 구성’을 누르세요. 제목, 원산지, 스펙, 섭취 방법, 상품 특징, FAQ 등을 항목별로 나눠 배치합니다. 자동 분류 후 미리보기에서 문구를 직접 고칠 수 있습니다.</div>
-<button class="dark" style="width:100%;margin-top:12px" onclick="buildPage()">✦ 상세페이지 자동 구성</button>
+<button class="dark" style="width:100%;margin-top:12px" onclick="buildPage()">✦ 상세페이지 자동 구성</button><button class="gold" id="gemBtn" style="width:100%;margin-top:8px" disabled onclick="gemBuild()">✨ 제미나이로 상세페이지 만들기</button><button class="light" id="gemUndo" style="width:100%;margin-top:6px;display:none" onclick="gemUndo()">↩ 입력 원문으로 되돌리기</button><div class="note" id="gemNote" style="margin-top:6px"></div>
 <h3>③ 상품 이미지 등록</h3><div class="field"><label>대표 상품 이미지</label><div class="upload">첫 화면에 사용할 사진<input type="file" accept="image/*" onchange="addImage(event,'heroImg')"></div></div>
 <div class="note">섹션 중간에 넣는 사진은 ④ 섹션 관리의 ‘이미지 추가’를 이용하세요.</div>
 <h3>④ 섹션 관리</h3><div class="sectionlist" id="sectionList"></div>
@@ -951,4 +1002,47 @@ function upgradeTools(){
 }
 
 initPickers();setTheme('basic');setTpl('fish',1);buildPage();History.init();
-</script></body></html>
+</script>
+<script>
+const API='/api/',TK='zt';let ADM=[],ADMTAB='req',GEMOK=false,idOK='',mailOK='',rawBak=null;
+async function api(p,b){const h={'Content-Type':'application/json'},t=sessionStorage.getItem(TK);if(t)h.Authorization='Bearer '+t;
+ const r=await fetch(API+p,{method:b?'POST':'GET',headers:h,body:b?JSON.stringify(b):undefined});let d={};try{d=await r.json()}catch(e){}
+ if(!r.ok)throw new Error(d.error||'요청 실패 ('+r.status+')');return d}
+function msg(id,t,ok){const e=$('m-'+id);e.textContent=t||'';e.className='msg'+(ok?' ok':'')}
+function go(n){document.querySelectorAll('.ap').forEach(x=>x.classList.toggle('on',x.id==='p-'+n));document.querySelectorAll('.msg').forEach(m=>m.textContent='');
+ if(n==='login'){const s=localStorage.getItem('savedId')||'';$('l-id').value=s;$('l-save').checked=!!s;$('l-pw').value=''}}
+async function doLogin(){const id=$('l-id').value.trim(),pw=$('l-pw').value;if(!id||!pw)return msg('login','아이디와 비밀번호를 입력해 주세요.');
+ try{const d=await api('login',{id,pw});if($('l-save').checked)localStorage.setItem('savedId',id);else localStorage.removeItem('savedId');sessionStorage.setItem(TK,d.token);enter(d)}catch(e){msg('login',e.message)}}
+function enter(d){$('authView').style.display='none';$('adminGo').style.display=d.role==='admin'?'':'none';refreshGem()}
+async function logout(){try{await api('logout',{})}catch(e){}sessionStorage.removeItem(TK);$('adminView').classList.remove('on');$('authView').style.display='flex';go('login')}
+function sgBtn(){$('s-go').disabled=!(idOK&&idOK===$('s-id').value.trim().toLowerCase()&&mailOK&&mailOK===$('s-mail').value.trim().toLowerCase())}
+async function chkId(){try{await api('check-id',{id:$('s-id').value.trim()});idOK=$('s-id').value.trim().toLowerCase();msg('signup','사용 가능한 아이디입니다.',1)}catch(e){idOK='';msg('signup',e.message)}sgBtn()}
+async function sendCode(){try{await api('send-code',{email:$('s-mail').value.trim()});msg('signup','인증번호를 메일로 보냈습니다. 10분 안에 입력해 주세요.',1)}catch(e){msg('signup',e.message)}}
+async function verifyCode(){try{await api('verify-code',{email:$('s-mail').value.trim(),code:$('s-code').value.trim()});mailOK=$('s-mail').value.trim().toLowerCase();msg('signup','이메일 인증이 완료되었습니다.',1)}catch(e){mailOK='';msg('signup',e.message)}sgBtn()}
+async function doSignup(){const pw=$('s-pw').value;if(!$('s-co').value.trim())return msg('signup','업체명을 입력해 주세요.');if(pw.length<8)return msg('signup','비밀번호는 8자 이상이어야 합니다.');if(pw!==$('s-pw2').value)return msg('signup','비밀번호 확인이 일치하지 않습니다.');
+ try{await api('signup',{company:$('s-co').value.trim(),email:$('s-mail').value.trim(),id:$('s-id').value.trim(),pw});idOK=mailOK='';['s-id','s-co','s-mail','s-code','s-pw','s-pw2'].forEach(i=>$(i).value='');go('login');msg('login','가입 신청이 완료되었습니다. 관리자 승인 후 로그인할 수 있습니다.',1)}catch(e){msg('signup',e.message)}}
+async function doFindId(){try{const d=await api('find-id',{company:$('f-co').value.trim(),email:$('f-mail').value.trim()});msg('findId','회원님의 아이디: '+d.id,1)}catch(e){msg('findId',e.message)}}
+async function doResetPw(){msg('findPw','메일 발송 중…',1);try{await api('reset-pw',{id:$('r-id').value.trim(),email:$('r-mail').value.trim()});msg('findPw','초기화된 비밀번호를 이메일로 보냈습니다. 로그인 후 변경해 주세요.',1)}catch(e){msg('findPw',e.message)}}
+async function doChPw(){const pw=$('c-pw').value;if(pw!==$('c-pw2').value)return msg('chPw','새 비밀번호 확인이 일치하지 않습니다.');
+ try{await api('change-pw',{id:$('c-id').value.trim(),old:$('c-old').value,pw});['c-old','c-pw','c-pw2'].forEach(i=>$(i).value='');go('login');msg('login','비밀번호가 변경되었습니다. 새 비밀번호로 로그인해 주세요.',1)}catch(e){msg('chPw',e.message)}}
+function showAdmin(){$('adminView').classList.add('on');admTab(ADMTAB);refreshGem()}
+function hideAdmin(){$('adminView').classList.remove('on')}
+async function admTab(t){ADMTAB=t;document.querySelectorAll('.aside div').forEach(x=>x.classList.toggle('on',x.dataset.t===t));try{ADM=(await api('admin/users')).users}catch(e){return toast(e.message)}renderAdm()}
+function renderAdm(){const rq=ADMTAB==='req',L=rq?ADM.filter(u=>u.status==='pending'):ADM;
+ const st=u=>u.blocked?'<span class="badge b">차단</span>':u.status==='pending'?'<span class="badge p">승인대기</span>':'<span class="badge a">승인</span>';
+ $('amain').innerHTML=`<h2 style="margin:0 0 14px;font-size:17px">${rq?'승인요청':'회원관리'} (${L.length})</h2><div class="urow h"><span>업체명</span><span>이메일</span><span>아이디</span><span>가입일</span><span>상태</span><span></span></div>`+
+ (L.length?L.map(u=>`<div class="urow"><span>${esc(u.company)}</span><span>${esc(u.email)}</span><span>${esc(u.uid)}</span><span>${new Date(u.created_at).toLocaleDateString('ko-KR')}</span>${st(u)}<span class="ua">${rq?`<button class="dark" onclick="admAct('approve','${esc(u.uid)}')">승인하기</button>`:`<button class="red" ${u.blocked?'disabled':''} onclick="admAct('block','${esc(u.uid)}')">차단하기</button><button class="light" ${u.blocked?'':'disabled'} onclick="admAct('unblock','${esc(u.uid)}')">차단해제</button>`}</span></div>`).join(''):'<div class="note">표시할 회원이 없습니다.</div>')}
+async function admAct(a,uid){if(a==='block'&&!confirm(uid+' 회원을 차단할까요?'))return;try{await api('admin/'+a,{uid});toast({approve:'승인했습니다.',block:'차단했습니다.',unblock:'차단을 해제했습니다.'}[a]);admTab(ADMTAB)}catch(e){toast(e.message)}}
+async function refreshGem(){try{GEMOK=(await api('gemini/status')).connected}catch(e){GEMOK=false}
+ $('gemBtn').disabled=!GEMOK;$('gemNote').textContent=GEMOK?'상품 정보를 입력하면 제미나이가 템플릿에 맞게 구성하고, 부족한 부분은 카피라이팅으로 보강합니다.':'관리자가 제미나이 API를 연결하면 사용할 수 있습니다.';
+ $('gStat').textContent=GEMOK?'● 제미나이 연결됨':'○ 연결 안 됨';$('gStat').style.color=GEMOK?'#2e7d4f':'#999';$('gOff').disabled=!GEMOK}
+function openGem(){$('g-key').value='';$('g-msg').textContent='';$('gModal').classList.add('on')}
+async function saveGem(){const key=$('g-key').value.trim();if(!key)return;$('g-msg').textContent='키 확인 중…';try{await api('gemini/save',{key});$('gModal').classList.remove('on');toast('제미나이와 연결되었습니다.');refreshGem()}catch(e){$('g-msg').textContent=e.message}}
+async function offGem(){if(!confirm('제미나이 연결을 해제할까요?'))return;try{await api('gemini/remove',{});toast('연결을 해제했습니다.');refreshGem()}catch(e){toast(e.message)}}
+async function gemBuild(){const raw=$('raw').value.trim();if(!raw)return toast('상품 정보를 먼저 입력해 주세요.');const b=$('gemBtn');b.disabled=true;b.textContent='✨ 제미나이 작성 중… (20~40초)';
+ try{const T=TPL[tpl],d=await api('gemini/generate',{raw,tpl:T.name,sections:T.secs.map(x=>({label:x.label,kind:x.kind,req:!!x.req}))});rawBak=$('raw').value;$('raw').value=d.text;$('gemUndo').style.display='';buildPage();toast('제미나이가 상세페이지를 구성했습니다.')}
+ catch(e){toast(e.message)}finally{b.disabled=!GEMOK;b.textContent='✨ 제미나이로 상세페이지 만들기'}}
+function gemUndo(){if(rawBak==null)return;$('raw').value=rawBak;rawBak=null;$('gemUndo').style.display='none';renderCheck();toast('입력 원문으로 되돌렸습니다. ‘자동 구성’을 누르면 반영됩니다.')}
+go('login');(async()=>{if(sessionStorage.getItem(TK)){try{enter(await api('me'))}catch(e){sessionStorage.removeItem(TK)}}})();
+</script>
+</body></html>
