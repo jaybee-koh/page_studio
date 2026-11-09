@@ -298,7 +298,7 @@ body.tbdrag{user-select:none;cursor:grabbing}
 body.tbdrag #page .sec{overflow:visible!important}
 .exporting .tbox{outline:none!important}.exporting .tbox .tb-bar{display:none!important}
 </style>
-<style>.page:empty{min-height:420px;display:grid;place-items:center;padding:40px;background:#fff}.page:empty::before{content:"템플릿을 고르고 상품 정보를 입력한 뒤\A‘✦ 상세페이지 자동 구성’을 눌러 주세요.";white-space:pre-line;text-align:center;color:#8a918b;font-size:14px;line-height:1.9}</style>
+<style>.page:empty{min-height:420px;display:grid;place-items:center;padding:40px;background:#fff}.page:empty::before{content:"상품 템플릿을 누르면 구성 미리보기가 보입니다.\A상품 정보를 입력한 뒤 ‘✦ 상세페이지 자동 구성’을 눌러 주세요.";white-space:pre-line;text-align:center;color:#8a918b;font-size:14px;line-height:1.9}</style>
 </head>
 <body>
 <div id="authView"><div class="authbox"><div class="alogo">푸드 상세페이지 <em>스튜디오</em></div>
@@ -338,7 +338,7 @@ body.tbdrag #page .sec{overflow:visible!important}
 <h2 style="margin-top:22px">② 상품 정보 한 번에 입력</h2>
 <div class="field"><label>상품 정보 원문</label><textarea id="raw" spellcheck="false" oninput="renderCheck()" placeholder="상품 정보 원문을 붙여넣거나, 위의 ‘이 템플릿 입력 양식 불러오기’를 눌러 양식을 채워 주세요."></textarea></div>
 <div class="note">상품 정보를 원문 그대로 붙여넣고 ‘자동 구성’을 누르세요. 순서나 형식이 달라도 됩니다. ‘○ 제목’, ‘원산지 : 국내산’, ‘보관방법 : …’, ‘Q.’ 질문, ‘POINT 01’ 같은 핵심 단어를 찾아 알아서 알맞은 섹션에 배치합니다. 제목, 원산지, 스펙, 섭취 방법, 상품 특징, FAQ 등을 항목별로 나눠 배치합니다. 자동 분류 후 미리보기에서 문구를 직접 고칠 수 있습니다.</div>
-<button class="dark" style="width:100%;margin-top:12px" onclick="buildPage()">✦ 상세페이지 자동 구성</button>
+<button class="dark" style="width:100%;margin-top:12px" onclick="previewMode=false;buildPage()">✦ 상세페이지 자동 구성</button>
 <h3>③ 상품 이미지 등록</h3><div class="field"><label>대표 상품 이미지</label><div class="upload">첫 화면에 사용할 사진<input type="file" accept="image/*" onchange="addImage(event,'heroImg')"></div></div>
 <div class="note">섹션 중간에 넣는 사진은 미리보기에서 섹션 위쪽의 ‘🖼 이미지’ 버튼을 이용하세요.</div>
 <h3>④ 섹션 관리</h3><div class="sectionlist" id="sectionList"></div>
@@ -578,9 +578,9 @@ function matchSecs(T,bl){
   if(b){used.add(b);matched.push({d,b})}});
  return {matched,extra:bl.filter(x=>!used.has(x)&&has(x)),used};
 }
-function buildPage(){
- if(!$('raw').value.trim()){toast('상품 정보를 먼저 입력해 주세요.');return}
- let T=TPL[tpl];let {title,intro,blocks}=splitSource($('raw').value);let bl=blocks.filter(b=>b.body.length);let html='';
+function buildPage(src,preview){
+ if(src===undefined&&!$('raw').value.trim()){toast('상품 정보를 먼저 입력해 주세요.');return}
+ let T=TPL[tpl];let {title,intro,blocks}=splitSource(src===undefined?$('raw').value:src);let bl=blocks.filter(b=>b.body.length);let html='';
  html+=section('hero',title,`<div class="hero hero-${tpl}">
     <div class="hero-copy"><div class="eyebrow">${T.eyebrow}</div>
     <div class="hero-kicker">${tpl==='farm'?'FRESHLY HARVESTED':tpl==='fish'?'OCEAN TO TABLE':'SELECTED PREMIUM CUT'}</div>
@@ -601,6 +601,7 @@ function buildPage(){
     </div>`);
  $('page').dataset.template=tpl;$('page').innerHTML=html;selected=$('page').querySelector('.sec');selectSec(selected);refreshList();renderCheck();
  let miss=T.secs.filter(d=>d.req&&!MS.matched.some(m=>m.d===d)).map(d=>d.label);
+ if(preview)return toast(T.name+' 템플릿 미리보기 · 상품 정보를 입력하고 ‘자동 구성’을 누르면 내용이 채워집니다.');
  toast(miss.length?`${T.name} 템플릿 구성 완료 · 필수 섹션 누락: ${miss.join(', ')}`:`${T.name} 템플릿으로 상세페이지를 구성했습니다.`);
 }
 function renderCheck(){let T=TPL[tpl];let bl=splitSource($('raw').value).blocks.filter(b=>b.body.length),MS=matchSecs(T,bl);$('checkList').innerHTML=`<h3>${T.name} 템플릿 섹션 체크</h3>`+T.secs.map(d=>{let ok=MS.matched.some(m=>m.d===d);return `<div class="chk ${ok?'ok':d.req?'no':'opt'}"><span>${d.label}</span><b>${ok?'✓ 입력됨':d.req?'필수 · 없음':'권장'}</b></div>`}).join('')+`<div class="note" style="margin-top:8px">${T.tip}</div>`;$('flowNote').innerHTML='<b>'+T.name+' 상세페이지 흐름</b><br>1. 첫 화면<br>'+T.secs.map((d,i)=>(i+2)+'. '+d.label).join('<br>')}
@@ -614,6 +615,7 @@ function renderThemePicker(){
  $('themePick').innerHTML=choices.map(t=>`<button class="design-card" data-k="${t.k}" onclick="setTheme('${t.k}')"><span class="design-swatch">${t.c.map(c=>`<i style="background:${c}"></i>`).join('')}</span><span class="design-copy"><b>${t.n}</b><small>${t.desc}</small></span></button>`).join('');
  document.querySelectorAll('#themePick button').forEach(b=>b.classList.toggle('on',b.dataset.k===theme));
 }
+let previewMode=false;
 function setTpl(k,q){
  if(!TPL[k])return;
  const prev=tpl;tpl=k;$('page').dataset.template=k;
@@ -623,10 +625,11 @@ function setTpl(k,q){
  renderCheck();
  if(!q){
   const built=$('page').querySelector(':scope>.sec'),r=$('raw');
+  if(!r.value.trim()&&(!built||previewMode)){previewMode=true;buildPage(TPL[k].sample,true);return}
   if(prev!==k&&built&&r.value.trim()){
    if(TPL[prev]&&r.value.trim()===TPL[prev].sample.trim())r.value=TPL[k].sample;
    renderCheck();
-   if(r.value.trim()){buildPage();return}
+   if(r.value.trim()){previewMode=false;buildPage();return}
   }
   toast(TPL[k].name+' 상품 템플릿 선택 · 기본 디자인과 전용 디자인 중 선택하세요.');
  }
