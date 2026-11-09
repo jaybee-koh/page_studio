@@ -240,9 +240,44 @@
 /* 본문 글자 기본 크기 25px (제목 h1·h2와 장식용 작은 라벨은 제외) */
 #page .hero .sub,#page .sec p,#page .specitem b,#page .copy,#page .notice,#page .notice .copy,#page .q,#page .a,#page .ingredients,#page .point span{font-size:25px}
 </style>
+<style id="tboxStyle">
+/* 이미지 틀 선택 */
+.shp{display:inline-block;width:14px;height:14px;background:#7d8a76;vertical-align:-2px;margin-right:7px}.shp.c{border-radius:50%}
+.shapepick{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}.shapepick button{background:#fff;border:1.5px solid #dcded9;padding:8px 4px;font-size:12px;color:#39423c}.shapepick button.on{border-color:var(--orange);background:#fff9f1}
+.shapemenu{position:fixed;z-index:50;background:#fff;border:1px solid #dcded9;border-radius:10px;box-shadow:0 8px 24px #0003;padding:6px;display:grid;gap:4px;min-width:150px}
+.shapemenu .sm-t{font-size:11px;color:#858b85;padding:3px 6px}
+.shapemenu button{background:#f5f6f2;color:#27312c;padding:9px 10px;text-align:left;font-size:13px;border-radius:7px}.shapemenu button:hover{background:#fff1de}
+.imgtools .shp{background:#fff;width:10px;height:10px;margin-right:4px;vertical-align:-1px}.imgtools button.on .shp{background:#302418}
+.page .imgblock[data-shape="square"] .imgslot.filled img{border-radius:0}
+.page .imgblock[data-shape="circle"] .imggrid.c1{grid-template-columns:minmax(0,440px);justify-content:center}
+.page .imgblock[data-shape="circle"] .imgslot{aspect-ratio:1/1;border-radius:50%;height:auto}
+.page .imgblock[data-shape="circle"] .c1 .imgslot.empty{height:auto}
+.page .imgblock[data-shape="circle"] .imgslot.filled{display:block;border:0}
+.page .imgblock[data-shape="circle"] .imgslot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.page .imgblock[data-shape="circle"] .slotx{right:auto;left:50%;top:12%;transform:translateX(-50%)}
+/* 텍스트 추가 모드 */
+button.tbtn.active{background:#d78c45;color:#2d1d0d}
+#modeHint{display:none;position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#d78c45;color:#2d1d0d;font-weight:800;font-size:13px;padding:9px 16px;border-radius:999px;z-index:30;box-shadow:0 4px 14px #0003}
+body.textmode #modeHint{display:block}
+body.textmode #page .sec,body.textmode #page .sec *{cursor:crosshair}
+body.textmode #page .tools *,body.textmode #page .imgtools *,body.textmode #page .tbox *{cursor:pointer}
+/* 텍스트 상자 */
+.tbox{position:absolute;z-index:6;padding:6px;max-width:calc(100% - 8px);cursor:move}
+.tbox:hover,.tbox:focus-within{outline:1px dashed #d78c45}
+.tbox .tb-text{width:300px;max-width:100%;min-width:60px;padding:8px 10px;font-size:25px;line-height:1.6;font-family:inherit;color:inherit;white-space:pre-wrap;overflow:hidden;overflow-wrap:anywhere;resize:horizontal;outline:none;cursor:text}
+.tbox .tb-bar{position:absolute;left:-1px;bottom:100%;display:none;gap:3px;white-space:nowrap}
+.tbox.bar-below .tb-bar{bottom:auto;top:100%}
+.tbox:hover .tb-bar,.tbox:focus-within .tb-bar{display:flex}
+.tbox .tb-grip{background:#d78c45;color:#2d1d0d;font-size:11px;font-weight:800;padding:5px 10px;border-radius:6px 6px 0 0;cursor:grab;user-select:none;touch-action:none}
+.tbox .tb-del{background:#26362e;color:#fff;font-size:11px;padding:5px 8px;border-radius:6px 6px 0 0}
+.tbox.bar-below .tb-grip,.tbox.bar-below .tb-del{border-radius:0 0 6px 6px}
+body.tbdrag{user-select:none;cursor:grabbing}
+body.tbdrag #page .sec{overflow:visible!important}
+.exporting .tbox{outline:none!important}.exporting .tbox .tb-bar{display:none!important}
+</style>
 </head>
 <body>
-<header class="top"><div class="logo">푸드 상세페이지 <em>스튜디오</em></div><div class="actions"><button class="light" onclick="saveProject()">프로젝트 저장</button><button class="light" onclick="document.getElementById('load').click()">불러오기</button><button class="gold" onclick="downloadJPG()">JPG 다운로드</button><input id="load" type="file" accept=".json" hidden onchange="loadProject(event)"></div></header>
+<header class="top"><div class="logo">푸드 상세페이지 <em>스튜디오</em></div><div class="actions"><button class="light tbtn" id="textAddTop" onclick="toggleTextMode()">T 텍스트 추가</button><button class="light" onclick="saveProject()">프로젝트 저장</button><button class="light" onclick="document.getElementById('load').click()">불러오기</button><button class="gold" onclick="downloadJPG()">JPG 다운로드</button><input id="load" type="file" accept=".json" hidden onchange="loadProject(event)"></div></header>
 <main class="layout">
 <aside class="panel">
 <h2>① 템플릿 · 디자인</h2>
@@ -297,9 +332,9 @@ A. 최대한 피를 빼고 혈압육을 제거해 보내드리지만 간혹 핏�
 <h3>③ 상품 이미지 등록</h3><div class="field"><label>대표 상품 이미지</label><div class="upload">첫 화면에 사용할 사진<input type="file" accept="image/*" onchange="addImage(event,'heroImg')"></div></div>
 <div class="note">섹션 중간에 넣는 사진은 ④ 섹션 관리의 ‘이미지 추가’를 이용하세요.</div>
 <h3>④ 섹션 관리</h3><div class="sectionlist" id="sectionList"></div>
-<button class="light" style="width:100%;margin-top:10px" onclick="addTextSection()">+ 직접 작성 섹션 추가</button>
-<div class="imgadd"><div class="note"><b>🖼 이미지 추가</b> · 분할 방식을 고른 뒤 추가하세요. 이미지는 칸을 클릭해 등록합니다. (여러 장 한 번에 선택 가능)</div>
-<div class="splitpick" id="splitPick"><button class="on" onclick="setImgCols(1)"><div class="ic i1"><i></i></div>1개</button><button onclick="setImgCols(2)"><div class="ic"><i></i><i></i></div>2분할</button><button onclick="setImgCols(3)"><div class="ic"><i></i><i></i><i></i></div>3분할</button></div>
+<button class="light" style="width:100%;margin-top:10px" onclick="addTextSection()">+ 직접 작성 섹션 추가</button><button class="light tbtn" id="textAddSide" style="width:100%;margin-top:6px" onclick="toggleTextMode()">T 텍스트 추가 (자유 이동 텍스트 상자)</button><div class="note" style="margin-top:6px">버튼을 누른 뒤 미리보기에서 글을 넣을 곳을 클릭하세요. 상자 위의 주황색 ‘✥ 이동’ 손잡이를 끌면 어디로든 옮길 수 있어요.</div>
+<div class="imgadd"><div class="note"><b>🖼 이미지 추가</b> · 분할 방식과 이미지 틀(사각/원형)을 고른 뒤 추가하세요. 이미지는 칸을 클릭해 등록합니다. (여러 장 한 번에 선택 가능)</div>
+<div class="splitpick" id="splitPick"><button class="on" onclick="setImgCols(1)"><div class="ic i1"><i></i></div>1개</button><button onclick="setImgCols(2)"><div class="ic"><i></i><i></i></div>2분할</button><button onclick="setImgCols(3)"><div class="ic"><i></i><i></i><i></i></div>3분할</button></div><div class="note" style="margin:2px 0 6px">이미지 틀</div><div class="shapepick" id="shapePick"><button class="on" data-s="square" onclick="setImgShape('square')"><i class="shp"></i>사각틀</button><button data-s="circle" onclick="setImgShape('circle')"><i class="shp c"></i>원형틀</button></div>
 <button class="dark" style="width:100%" onclick="addImageToSelected()">선택한 섹션에 이미지 추가</button>
 <button class="light" style="width:100%;margin-top:6px" onclick="addImageSection()">+ 이미지 전용 섹션 추가</button></div>
 <input id="slotPicker" type="file" accept="image/*" multiple hidden onchange="slotFiles(event)">
@@ -314,7 +349,7 @@ A. 최대한 피를 빼고 혈압육을 제거해 보내드리지만 간혹 핏�
 <div class="note" id="textSelectNote" style="margin-top:7px">선택된 글자가 없습니다.</div>
 <hr style="border:0;border-top:1px solid #eee;margin:18px 0">
 <h3>섹션 배경</h3><div class="field"><input type="color" id="bg" value="#ffffff" oninput="styleSelected('background',this.value)"></div><h3>글자 색상</h3><div class="field"><input type="color" id="fg" value="#27312c" oninput="styleSelected('color',this.value)"></div><h3>섹션 여백</h3><div class="field"><div style="display:flex;align-items:center;gap:10px"><input id="sectionPaddingRange" type="range" min="16" max="90" value="42" style="flex:1" oninput="paddingSelected(this.value)"><input id="sectionPaddingNumber" type="number" min="16" max="90" value="42" style="width:68px;padding:7px;border:1px solid #dcded9;border-radius:8px" oninput="paddingSelected(this.value)"></div></div><h3>제목 크기</h3><div class="field"><div style="display:flex;align-items:center;gap:10px"><input id="sectionTitleRange" type="range" min="18" max="44" value="28" style="flex:1" oninput="fontSelected(this.value)"><input id="sectionTitleNumber" type="number" min="18" max="44" value="28" style="width:68px;padding:7px;border:1px solid #dcded9;border-radius:8px" oninput="fontSelected(this.value)"></div></div><button class="light" onclick="resetStyle()">선택 섹션 초기화</button><hr style="border:0;border-top:1px solid #eee;margin:20px 0"><div class="note" id="flowNote"></div></aside>
-</main><div class="toast" id="toast"></div>
+</main><div class="toast" id="toast"></div><div id="modeHint">T 텍스트 추가: 미리보기에서 글을 넣을 위치를 클릭하세요 · Esc 취소</div>
 <script>
 let selected=null, images={heroImg:null},tpl='fish',theme='green';
 const $=id=>document.getElementById(id);
@@ -329,7 +364,7 @@ function splitSource(text){
  blocks.forEach(b=>{if(b.title==='상품 소개')b.body=b.body.filter(x=>x!==title.trim()&&x!==intro)});return {title,intro,blocks:blocks.filter(b=>b.body.length||b.title!=='상품 소개')};
 }
 function parseSpecs(body){let rows=[];let ingredients=[];body.forEach(line=>{let t=line.replace(/^※\s*/,'');let m=t.match(/^([^:：]+)\s*[:：]\s*(.*)$/);if(m){let k=m[1].trim(),v=m[2].trim();if(/성분표시|원재료|간장와사비|김\s/.test(k)||/간장와사비\s*:|김\s*:/.test(line))ingredients.push(t);else rows.push([k,v])}else if(/^[-·]/.test(t)||/함유$/.test(t))ingredients.push(t);else ingredients.push(t)});return {rows,ingredients}}
-const TOOLS=`<div class="tools"><button onclick="addImageToSec(event,this)" title="이 섹션에 이미지 추가">🖼 이미지</button><button onclick="moveSec(event,this,-1)">↑</button><button onclick="moveSec(event,this,1)">↓</button><button onclick="deleteSec(event,this)">삭제</button></div>`;
+const TOOLS=`<div class="tools"><button onclick="addImageToSec(event,this)" title="이 섹션에 이미지 추가 (사각틀/원형틀 선택)">🖼 이미지 ▾</button><button class="tool-text" onclick="addTextToSec(event,this)" title="이 섹션에 텍스트 상자 추가">T 텍스트</button><button onclick="moveSec(event,this,-1)">↑</button><button onclick="moveSec(event,this,1)">↓</button><button onclick="deleteSec(event,this)">삭제</button></div>`;
 function section(type,title,body,label){return `<section class="sec" data-type="${type}"${label?' data-label="'+esc(label)+'"':''} onclick="selectSec(this)">${TOOLS}${body}</section>`}
 function makeTextBlock(title,lines){return `<div class="inner"><div class="tag">FRESH FOOD STORY</div><div class="featurehead"><h2 contenteditable="true">${esc(title)}</h2></div><div class="copy" contenteditable="true">${esc(lines.join('\n'))}</div></div>`}
 /* ===== 템플릿 (농산물 / 수산물 / 축산물) · 디자인 ===== */
@@ -595,13 +630,13 @@ function addImage(e,key){let f=e.target.files[0];if(!f)return;let r=new FileRead
 /* ===== 이미지 블록 (1개 / 2분할 / 3분할) ===== */
 let imgCols=1,pickTarget=null;
 function slotHTML(src){return src?`<div class="imgslot filled" onclick="pickSlot(event,this)"><img src="${src}"><button class="slotx" onclick="clearSlot(event,this)">✕ 삭제</button></div>`:`<div class="imgslot empty" onclick="pickSlot(event,this)"><span>＋ 클릭해서 이미지 추가</span></div>`}
-function imgBlockHTML(cols,srcs){srcs=srcs||[];let n=Math.max(cols,Math.ceil(srcs.length/cols)*cols),g='';for(let i=0;i<n;i++)g+=slotHTML(srcs[i]);return `<div class="imgblock" data-cols="${cols}"><div class="imgtools">${[1,2,3].map(c=>`<button class="${c===cols?'on':''}" onclick="setCols(event,this,${c})">${c===1?'1개':c+'분할'}</button>`).join('')}<button onclick="moveBlock(event,this,-1)">↑</button><button onclick="moveBlock(event,this,1)">↓</button><button onclick="deleteBlock(event,this)">삭제</button></div><div class="imggrid c${cols}">${g}</div></div>`}
+function imgBlockHTML(cols,srcs,shape){srcs=srcs||[];shape=shape||'';let n=Math.max(cols,Math.ceil(srcs.length/cols)*cols),g='';for(let i=0;i<n;i++)g+=slotHTML(srcs[i]);return `<div class="imgblock" data-cols="${cols}"${shape?` data-shape="${shape}"`:''}><div class="imgtools">${[1,2,3].map(c=>`<button class="${c===cols?'on':''}" onclick="setCols(event,this,${c})">${c===1?'1개':c+'분할'}</button>`).join('')}<button data-s="square" class="${shape==='square'?'on':''}" onclick="setShape(event,this,'square')"><i class="shp"></i>사각</button><button data-s="circle" class="${shape==='circle'?'on':''}" onclick="setShape(event,this,'circle')"><i class="shp c"></i>원형</button><button onclick="moveBlock(event,this,-1)">↑</button><button onclick="moveBlock(event,this,1)">↓</button><button onclick="deleteBlock(event,this)">삭제</button></div><div class="imggrid c${cols}">${g}</div></div>`}
 function setImgCols(c){imgCols=c;document.querySelectorAll('#splitPick button').forEach((b,i)=>b.classList.toggle('on',i===c-1))}
-function addImgBlockTo(sec){let host=sec.querySelector(':scope > div:not(.tools)')||sec;host.insertAdjacentHTML('beforeend',imgBlockHTML(imgCols));selectSec(sec);let b=host.lastElementChild;b.scrollIntoView({behavior:'smooth',block:'center'});toast((imgCols===1?'이미지 1개':'이미지 '+imgCols+'분할')+' 영역을 추가했습니다. 칸을 클릭해 사진을 등록하세요.')}
+function addImgBlockTo(sec,shape){shape=shape||imgShape;let host=sec.querySelector(':scope > div:not(.tools):not(.tbox)')||sec;host.insertAdjacentHTML('beforeend',imgBlockHTML(imgCols,[],shape));selectSec(sec);let b=host.lastElementChild;b.scrollIntoView({behavior:'smooth',block:'center'});toast((shape==='circle'?'원형틀 ':'사각틀 ')+(imgCols===1?'이미지 1개':'이미지 '+imgCols+'분할')+' 영역을 추가했습니다. 칸을 클릭해 사진을 등록하세요.')}
 function addImageToSelected(){if(!selected||!document.body.contains(selected)){toast('먼저 미리보기에서 섹션을 선택해 주세요.');return}addImgBlockTo(selected)}
-function addImageToSec(e,b){e.stopPropagation();addImgBlockTo(b.closest('.sec'))}
-function addImageSection(){let s=document.createElement('section');s.className='sec';s.dataset.type='image';s.innerHTML=`${TOOLS}<div class="inner">${imgBlockHTML(imgCols)}</div>`;let page=$('page');if(selected&&page.contains(selected))selected.after(s);else page.insertBefore(s,page.lastElementChild);selectSec(s);s.scrollIntoView({behavior:'smooth',block:'center'});toast('이미지 섹션을 추가했습니다. 칸을 클릭해 사진을 등록하세요.')}
-function setCols(e,btn,c){e.stopPropagation();let blk=btn.closest('.imgblock');let srcs=[...blk.querySelectorAll('.imgslot')].map(sl=>{let i=sl.querySelector('img');return i?i.getAttribute('src'):null});while(srcs.length&&!srcs[srcs.length-1])srcs.pop();blk.outerHTML=imgBlockHTML(c,srcs)}
+
+function addImageSection(){let s=document.createElement('section');s.className='sec';s.dataset.type='image';s.innerHTML=`${TOOLS}<div class="inner">${imgBlockHTML(imgCols,[],imgShape)}</div>`;let page=$('page');if(selected&&page.contains(selected))selected.after(s);else page.insertBefore(s,page.lastElementChild);selectSec(s);s.scrollIntoView({behavior:'smooth',block:'center'});toast('이미지 섹션을 추가했습니다. 칸을 클릭해 사진을 등록하세요.')}
+function setCols(e,btn,c){e.stopPropagation();let blk=btn.closest('.imgblock');let srcs=[...blk.querySelectorAll('.imgslot')].map(sl=>{let i=sl.querySelector('img');return i?i.getAttribute('src'):null});while(srcs.length&&!srcs[srcs.length-1])srcs.pop();blk.outerHTML=imgBlockHTML(c,srcs,blk.dataset.shape||'')}
 function moveBlock(e,btn,d){e.stopPropagation();let b=btn.closest('.imgblock');if(d<0&&b.previousElementSibling)b.parentNode.insertBefore(b,b.previousElementSibling);if(d>0&&b.nextElementSibling)b.parentNode.insertBefore(b.nextElementSibling,b)}
 function deleteBlock(e,btn){e.stopPropagation();btn.closest('.imgblock').remove();toast('이미지 영역을 삭제했습니다.')}
 function pickSlot(e,slot){pickTarget=slot;let p=$('slotPicker');p.value='';p.click()}
@@ -747,7 +782,7 @@ function resetStyle(){
  toast('선택 섹션과 여백·제목 크기 조절바를 기본값으로 초기화했습니다.');
 }
 function saveProject(){let d={html:$('page').innerHTML.replace(/ lts-on/g,''),raw:$('raw').value,images,tpl,theme};let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:'application/json'}));a.download='푸드상세페이지-프로젝트.json';a.click();URL.revokeObjectURL(a.href);toast('프로젝트 파일을 저장했습니다.')}
-function loadProject(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);$('page').innerHTML=d.html;$('raw').value=d.raw||'';images=d.images||images;if(d.tpl){setTpl(d.tpl,1);$('page').dataset.template=d.tpl;}if(d.theme)setTheme(d.theme);renderCheck();selected=$('page').querySelector('.sec');selectSec(selected);toast('프로젝트를 불러왔습니다.')}catch(x){toast('프로젝트 파일을 읽지 못했습니다.')}};r.readAsText(f)}
+function loadProject(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);$('page').innerHTML=d.html;upgradeTools();$('raw').value=d.raw||'';images=d.images||images;if(d.tpl){setTpl(d.tpl,1);$('page').dataset.template=d.tpl;}if(d.theme)setTheme(d.theme);renderCheck();selected=$('page').querySelector('.sec');selectSec(selected);toast('프로젝트를 불러왔습니다.')}catch(x){toast('프로젝트 파일을 읽지 못했습니다.')}};r.readAsText(f)}
 async function downloadJPG(){try{toast('고화질 JPG를 만드는 중입니다.');if(!window.html2canvas)await new Promise((ok,no)=>{let s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});document.querySelectorAll('.sec').forEach(s=>s.classList.remove('sel'));$('page').classList.add('exporting');document.querySelectorAll('.imgblock').forEach(b=>{if(!b.querySelector('.imgslot.filled'))b.classList.add('allempty')});let pg=$('page');let pw=Math.round(pg.getBoundingClientRect().width);let c=await html2canvas(pg,{scale:2,useCORS:true,backgroundColor:'#fff',logging:false,width:pw,windowWidth:Math.max(pw,document.documentElement.clientWidth),onclone:(doc)=>{let p=doc.getElementById('page');p.style.width=pw+'px';p.style.maxWidth='none';p.style.margin='0';p.style.boxShadow='none';p.querySelectorAll('.sec').forEach(s=>{s.style.outline='none'});p.querySelectorAll('.hero,.origin,.end,.notice').forEach(el=>{el.style.marginLeft='-2px';el.style.marginRight='-2px';el.style.width='calc(100% + 4px)'});}});let a=document.createElement('a');a.download='식품-상품상세페이지.jpg';a.href=c.toDataURL('image/jpeg',.94);a.click();if(selected)selected.classList.add('sel');toast('JPG 다운로드가 완료됐습니다.')}catch(e){toast('JPG 생성 실패. 인터넷 연결을 확인해 주세요.');if(selected)selected.classList.add('sel')}finally{$('page').classList.remove('exporting');document.querySelectorAll('.imgblock.allempty').forEach(b=>b.classList.remove('allempty'))}}
 $('page').addEventListener('click',e=>{let s=e.target.closest('.sec');if(s&&!e.target.closest('.tools'))selectSec(s)});
 $('page').addEventListener('mousedown',()=>{clearLiveHighlight();liveTextSpan=null;savedTextRange=null;$('textSelectNote').textContent='선택된 글자가 없습니다.';});
@@ -776,7 +811,7 @@ function historyRestore(st){
  History.restoring=true;
  try{
   const p=$('page');
-  p.innerHTML=st.html;
+  p.innerHTML=st.html;upgradeTools();
   if(st.style)p.setAttribute('style',st.style);else p.removeAttribute('style');
   p.className=st.cls;
   if(st.dt)setTpl(st.dt,1);
@@ -819,5 +854,101 @@ document.addEventListener('beforeinput',e=>{
  if(e.inputType==='historyUndo'){e.preventDefault();undo()}
  else if(e.inputType==='historyRedo'){e.preventDefault();redo()}
 },true);
+
+/* ===== 이미지 틀 선택 (사각틀 / 원형틀) ===== */
+let imgShape='square';
+function setImgShape(s){imgShape=s;document.querySelectorAll('#shapePick button').forEach(b=>b.classList.toggle('on',b.dataset.s===s))}
+function closeShapeMenu(){const m=$('shapeMenu');if(m)m.remove()}
+function setShape(e,btn,s){e.stopPropagation();const blk=btn.closest('.imgblock');blk.dataset.shape=s;blk.querySelectorAll('.imgtools button[data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===s))}
+function addImageToSec(e,b){
+ e.stopPropagation();closeShapeMenu();
+ const sec=b.closest('.sec'),r=b.getBoundingClientRect();
+ const m=document.createElement('div');m.id='shapeMenu';m.className='shapemenu';
+ m.innerHTML='<div class="sm-t">이미지 틀 선택</div><button data-s="square"><i class="shp"></i>사각틀</button><button data-s="circle"><i class="shp c"></i>원형틀</button>';
+ m.style.top=Math.round(r.bottom+4)+'px';
+ m.style.left=Math.max(8,Math.min(Math.round(r.left),window.innerWidth-170))+'px';
+ m.addEventListener('click',ev=>{ev.stopPropagation();const s=ev.target.closest('button');if(!s)return;closeShapeMenu();addImgBlockTo(sec,s.dataset.s)});
+ document.body.appendChild(m);
+}
+document.addEventListener('click',closeShapeMenu);
+window.addEventListener('wheel',closeShapeMenu,{passive:true});
+
+/* ===== 텍스트 상자 (클릭해서 추가 · 드래그로 자유 이동) ===== */
+let textMode=false;
+function setTextMode(on){
+ textMode=on;document.body.classList.toggle('textmode',on);
+ ['textAddTop','textAddSide'].forEach(id=>{const b=$(id);if(b)b.classList.toggle('active',on)});
+ if(on)closeShapeMenu();
+}
+function toggleTextMode(){setTextMode(!textMode)}
+function tbFixBar(box){box.classList.toggle('bar-below',box.offsetTop<30)}
+function isDarkHex(h){const m=/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(h||'');if(!m)return false;return (0.299*parseInt(m[1],16)+0.587*parseInt(m[2],16)+0.114*parseInt(m[3],16))<140}
+function tboxHTML(x,y){return `<div class="tbox" style="left:${x}px;top:${y}px"><div class="tb-bar"><span class="tb-grip" title="끌어서 이동">✥ 이동</span><button class="tb-del" onclick="delTbox(event,this)" title="이 텍스트 상자 삭제">✕</button></div><div class="tb-text" contenteditable="true">텍스트를 입력하세요</div></div>`}
+function placeTbox(sec,cx,cy){
+ const r=sec.getBoundingClientRect();
+ const w=Math.min(300,sec.clientWidth);
+ let x=Math.max(0,Math.min(cx-r.left,sec.clientWidth-w-12));
+ let y=Math.max(0,Math.min(cy-r.top,sec.offsetHeight-56));
+ sec.insertAdjacentHTML('beforeend',tboxHTML(Math.round(x),Math.round(y)));
+ const box=sec.lastElementChild,t=box.querySelector('.tb-text');
+ const surf=sec.querySelector(':scope > .hero,:scope > .origin,:scope > .end,:scope > .notice,:scope > .highlight,:scope > .feature,:scope > .inner');
+ if(isDarkHex(visibleBgColor(surf)))t.style.color='#ffffff';
+ tbFixBar(box);setTextMode(false);selectSec(sec);
+ t.focus();const rg=document.createRange();rg.selectNodeContents(t);const sl=window.getSelection();sl.removeAllRanges();sl.addRange(rg);
+ toast('텍스트 상자를 추가했습니다. 글을 입력하고, 주황색 ‘✥ 이동’ 손잡이를 끌어 옮기세요.');
+}
+function delTbox(e,btn){e.stopPropagation();btn.closest('.tbox').remove();toast('텍스트 상자를 삭제했습니다.')}
+function dropTbox(box,cx,cy){
+ const secs=[...$('page').querySelectorAll(':scope>.sec')];
+ const target=secs.find(s=>{const r=s.getBoundingClientRect();return cy>=r.top&&cy<=r.bottom})||box.closest('.sec');
+ const br=box.getBoundingClientRect(),tr=target.getBoundingClientRect();
+ if(box.parentElement!==target)target.appendChild(box);
+ const w=box.offsetWidth,h=box.offsetHeight;
+ const l=Math.max(0,Math.min(br.left-tr.left,target.clientWidth-w));
+ const t=Math.max(0,Math.min(br.top-tr.top,target.offsetHeight-h));
+ box.style.left=Math.round(l)+'px';box.style.top=Math.round(t)+'px';
+ tbFixBar(box);selectSec(target);
+}
+function startTboxDrag(e,box){
+ e.preventDefault();
+ const br=box.getBoundingClientRect(),ox=e.clientX-br.left,oy=e.clientY-br.top;
+ document.body.classList.add('tbdrag');
+ const move=ev=>{const pr=box.parentElement.getBoundingClientRect();box.style.left=(ev.clientX-ox-pr.left)+'px';box.style.top=(ev.clientY-oy-pr.top)+'px'};
+ const up=ev=>{
+  document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',up);
+  document.body.classList.remove('tbdrag');dropTbox(box,ev.clientX,ev.clientY);
+ };
+ document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up);
+}
+function tboxDragTarget(e){
+ const box=e.target.closest&&e.target.closest('#page .tbox');
+ if(!box||e.target.closest('.tb-del'))return null;
+ return (e.target===box||e.target.closest('.tb-bar'))?box:null;
+}
+document.addEventListener('pointerdown',e=>{if(e.button)return;const b=tboxDragTarget(e);if(b)startTboxDrag(e,b)});
+document.addEventListener('mousedown',e=>{if(tboxDragTarget(e))e.preventDefault()});
+$('page').addEventListener('mousedown',e=>{if(textMode&&e.target.closest('.sec')&&!e.target.closest('.tools,.tbox,.imgtools'))e.preventDefault()},true);
+$('page').addEventListener('click',e=>{
+ if(!textMode)return;
+ if(e.target.closest('.tools,.tbox,.imgtools'))return;
+ const sec=e.target.closest('.sec');if(!sec)return;
+ e.preventDefault();e.stopPropagation();placeTbox(sec,e.clientX,e.clientY);
+},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&textMode)setTextMode(false)});
+function addTextToSec(e,b){
+ e.stopPropagation();closeShapeMenu();
+ const sec=b.closest('.sec'),r=sec.getBoundingClientRect();
+ const y=Math.max(24,Math.min(window.innerHeight/2-r.top-30,sec.offsetHeight-80));
+ placeTbox(sec,r.left+Math.round(sec.clientWidth*0.12),r.top+y);
+}
+function upgradeTools(){
+ document.querySelectorAll('#page .tools').forEach(t=>{
+  if(t.querySelector('.tool-text'))return;
+  const img=t.querySelector('button[onclick^="addImageToSec"]');
+  const btn=document.createElement('button');btn.className='tool-text';btn.setAttribute('onclick','addTextToSec(event,this)');btn.title='이 섹션에 텍스트 상자 추가';btn.textContent='T 텍스트';
+  if(img)img.after(btn);else t.prepend(btn);
+ });
+}
+
 initPickers();setTheme('basic');setTpl('fish',1);buildPage();History.init();
 </script></body></html>
