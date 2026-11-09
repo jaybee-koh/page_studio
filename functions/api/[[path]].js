@@ -132,7 +132,7 @@ async function route(p,req,env,b){
 
   if(p==='gemini/status')return J({connected:!!await KEY()});
   if(p==='gemini/save'){needAdmin();const key=str('key');
-    if(!/^[\w-]{20,}$/.test(key))throw E('API 키 형식이 올바르지 않습니다.');
+  if(!/^[\w.-]{20,}$/.test(key))throw E('API 키 형식이 올바르지 않습니다.');
     await gem(key,'Reply with OK.','ping',16);
     await DB.prepare("INSERT OR REPLACE INTO settings(k,v) VALUES('gemini_key',?)").bind(key).run();return J({ok:1})}
   if(p==='gemini/remove'){needAdmin();await DB.prepare("DELETE FROM settings WHERE k='gemini_key'").run();return J({ok:1})}
