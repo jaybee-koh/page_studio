@@ -351,6 +351,20 @@
 .mbg{position:fixed;inset:0;background:#0007;z-index:120;display:none;align-items:center;justify-content:center;padding:16px}.mbg.on{display:flex}
 .mod{background:#fff;border-radius:14px;padding:22px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:10px}
 @media(max-width:800px){.abody{grid-template-columns:1fr}.aside{display:flex;gap:6px;border-right:0}.urow{grid-template-columns:1fr 1fr}.urow.h{display:none}}
+
+/* 범용 요소 편집: 선택한 텍스트/박스의 이동·크기조절·삭제·복제 */
+#elementEditor{position:fixed;z-index:10050;display:none;align-items:center;gap:4px;padding:5px;background:#24332d;color:#fff;border-radius:9px;box-shadow:0 5px 18px #0003;font-size:11px;white-space:nowrap}
+#elementEditor button{padding:5px 8px;border-radius:6px;background:#fff;color:#24332d;font-size:11px}
+#elementEditor .ee-grip{cursor:grab;padding:5px 8px;background:#d78c45;color:#302418;border-radius:6px;font-weight:800;touch-action:none}
+#elementEditor .ee-grip:active{cursor:grabbing}
+#page .element-selected{outline:2px solid #e58b37!important;outline-offset:2px;position:relative}
+#page .element-resize{position:absolute;right:-5px;bottom:-5px;width:15px;height:15px;background:#e58b37;border:2px solid #fff;border-radius:4px;z-index:8;cursor:nwse-resize;touch-action:none}
+#page .element-selected[contenteditable="true"]{cursor:text}
+#page .editable-box{position:relative;margin:18px 0;padding:24px 28px;border:1px solid #d9ded5;background:#f5f7f1;border-radius:12px;min-height:90px;font-size:20px;line-height:1.8;color:#354238;white-space:pre-wrap}
+#page .editable-box:before{content:'CUSTOM CONTENT';display:block;font-size:10px;letter-spacing:2px;font-weight:900;color:#79916f;margin-bottom:8px}
+#page.exporting .element-resize,#page.exporting #elementEditor{display:none!important}
+
+.category-inputs{display:grid;gap:10px;margin-top:10px}.cat-input-card{border:1px solid #e4e6e1;border-radius:12px;background:#fff;overflow:hidden}.cat-input-head{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:#f6f7f3;font-weight:800}.cat-input-body{padding:10px;display:grid;gap:10px}.cat-input-row{border:1px solid #eceee9;border-radius:9px;padding:9px;background:#fff}.cat-input-row-head{display:flex;gap:7px;align-items:center;margin-bottom:6px}.cat-input-row-head input{flex:1;min-width:0;font-weight:700}.cat-input-row textarea{width:100%;min-height:66px;resize:vertical}.cat-input-row button,.cat-input-head button{border:1px solid #ddd;background:#fff;border-radius:7px;padding:6px 9px;cursor:pointer}.cat-input-row .remove-cat-row{color:#b43b32}.cat-input-add{width:100%;border:1px dashed #c9cec5!important;background:#fafbf8!important;color:#465447;padding:9px!important;font-weight:700}.cat-input-card details summary{cursor:pointer;list-style:none}.cat-input-card details summary::-webkit-details-marker{display:none}
 </style><style id="bodyTextDefault">
 /* 본문 글자 기본 크기 25px (제목 h1·h2와 장식용 작은 라벨은 제외) */
 #page .hero .sub,#page .sec p,#page .specitem b,#page .copy,#page .notice,#page .notice .copy,#page .q,#page .a,#page .ingredients,#page .point span{font-size:25px}
@@ -447,9 +461,13 @@ body.tbdrag #page .sec{overflow:visible!important}
 <div class="checklist" id="checkList"></div>
 <h3>디자인 선택</h3><div class="themepick" id="themePick"></div>
 <h2 style="margin-top:22px">② 상품 정보 한 번에 입력</h2>
-<div class="field"><label>상품 정보 원문</label><textarea id="raw" spellcheck="false" oninput="renderCheck()" placeholder="상품 정보 원문을 붙여넣거나, 위의 ‘이 템플릿 입력 양식 불러오기’를 눌러 양식을 채워 주세요."></textarea></div>
-<div class="note">상품 정보를 원문 그대로 붙여넣고 ‘자동 구성’을 누르세요. 순서나 형식이 달라도 됩니다. ‘○ 제목’, ‘원산지 : 국내산’, ‘보관방법 : …’, ‘Q.’ 질문, ‘POINT 01’ 같은 핵심 단어를 찾아 알아서 알맞은 섹션에 배치합니다. 제목, 원산지, 스펙, 섭취 방법, 상품 특징, FAQ 등을 항목별로 나눠 배치합니다. 자동 분류 후 미리보기에서 문구를 직접 고칠 수 있습니다.</div>
-<button class="dark" style="width:100%;margin-top:12px" onclick="previewMode=false;buildPage()">✦ 상세페이지 자동 구성</button>
+<div class="field"><label>상품 정보 원문</label><textarea id="raw" spellcheck="false" oninput="renderCheck()" placeholder="상품 정보 원문을 붙여넣거나, 아래 카테고리별 입력란을 이용하세요."></textarea></div>
+<div class="note">전체 상품 정보를 한 번에 붙여넣거나, 아래에서 농산물·수산물·축산물 카테고리를 선택해 섹션별로 입력할 수 있습니다.</div>
+<h3 style="margin-top:16px">상품 정보 섹션별로 입력하기</h3>
+<div class="category-inputs" id="categoryInputs"></div>
+<div class="note">각 카테고리의 항목을 채운 뒤 현재 선택한 상품 템플릿에 맞춰 자동 구성됩니다. 섹션은 추가하거나 삭제할 수 있습니다.</div>
+<button class="dark" style="width:100%;margin-top:12px" onclick="buildFromCategoryInputs()">✦ 입력한 정보로 상세페이지 자동 구성</button>
+<button class="light" style="width:100%;margin-top:7px" onclick="previewMode=false;buildPage()">원문 입력 내용으로 자동 구성</button>
 <h3>③ 상품 이미지 등록</h3><div class="field"><label>대표 상품 이미지</label><div class="upload">첫 화면에 사용할 사진<input type="file" accept="image/*" onchange="addImage(event,'heroImg')"></div></div>
 <div class="note">섹션 중간에 넣는 사진은 미리보기에서 섹션 위쪽의 ‘🖼 이미지’ 버튼을 이용하세요.</div>
 <h3>④ 섹션 관리</h3><div class="sectionlist" id="sectionList"></div>
@@ -467,7 +485,7 @@ body.tbdrag #page .sec{overflow:visible!important}
 <div class="note" id="textSelectNote" style="margin-top:7px">선택된 글자가 없습니다.</div>
 <hr style="border:0;border-top:1px solid #eee;margin:18px 0">
 <h3>섹션 배경</h3><div class="field"><input type="color" id="bg" value="#ffffff" oninput="styleSelected('background',this.value)"></div><h3>글자 색상</h3><div class="field"><input type="color" id="fg" value="#27312c" oninput="styleSelected('color',this.value)"></div><h3>섹션 여백</h3><div class="field"><div style="display:flex;align-items:center;gap:10px"><input id="sectionPaddingRange" type="range" min="16" max="90" value="42" style="flex:1" oninput="paddingSelected(this.value)"><input id="sectionPaddingNumber" type="number" min="16" max="90" value="42" style="width:68px;padding:7px;border:1px solid #dcded9;border-radius:8px" oninput="paddingSelected(this.value)"></div></div><h3>제목 크기</h3><div class="field"><div style="display:flex;align-items:center;gap:10px"><input id="sectionTitleRange" type="range" min="18" max="44" value="28" style="flex:1" oninput="fontSelected(this.value)"><input id="sectionTitleNumber" type="number" min="18" max="44" value="28" style="width:68px;padding:7px;border:1px solid #dcded9;border-radius:8px" oninput="fontSelected(this.value)"></div></div><button class="light" onclick="resetStyle()">선택 섹션 초기화</button><hr style="border:0;border-top:1px solid #eee;margin:20px 0"><div class="note" id="flowNote"></div></aside>
-</main><div class="toast" id="toast"></div><div id="modeHint">T 텍스트 추가: 미리보기에서 글을 넣을 위치를 클릭하세요 · Esc 취소</div>
+</main><div class="toast" id="toast"></div><div id="modeHint">T 텍스트 추가: 미리보기에서 글을 넣을 위치를 클릭하세요 · Esc 취소</div><div id="elementEditor"><span class="ee-grip" title="끌어서 이동">✥ 이동</span><button type="button" onclick="duplicateElement()">복제</button><button type="button" onclick="deleteElement()">삭제</button><button type="button" onclick="clearElementSelection()">완료</button></div>
 <script>
 let selected=null, images={heroImg:null},tpl='fish',theme='green';
 const $=id=>document.getElementById(id);
@@ -475,7 +493,7 @@ function toast(t){let x=$('toast');x.textContent=t;x.style.display='block';setTi
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function clean(s){return s.replace(/\*\*/g,'').replace(/\r/g,'').trim()}
 function parseSpecs(body){let rows=[];let ingredients=[];body.forEach(line=>{let t=line.replace(/^※\s*/,'');let m=t.match(/^([^:：]+)\s*[:：]\s*(.*)$/);if(m){let k=m[1].trim(),v=m[2].trim();if(/성분|원재료|원료|알레르기|함유|간장와사비|김\s/.test(k)||/간장와사비\s*:|김\s*:/.test(line))ingredients.push(t);else rows.push([k,v])}else if(/^[-·]/.test(t)||/함유$/.test(t))ingredients.push(t);else ingredients.push(t)});return {rows,ingredients}}
-const TOOLS=`<div class="tools"><button onclick="addImageToSec(event,this)" title="이 섹션에 이미지 추가 (사각틀/원형틀 선택)">🖼 이미지 ▾</button><button class="tool-text" onclick="addTextToSec(event,this)" title="이 섹션에 텍스트 상자 추가">T 텍스트</button><button onclick="moveSec(event,this,-1)">↑</button><button onclick="moveSec(event,this,1)">↓</button><button onclick="deleteSec(event,this)">삭제</button></div>`;
+const TOOLS=`<div class="tools"><button onclick="addImageToSec(event,this)" title="이 섹션에 이미지 추가 (사각틀/원형틀 선택)">🖼 이미지 ▾</button><button class="tool-text" onclick="addTextToSec(event,this)" title="이 섹션에 텍스트 상자 추가">T 텍스트</button><button onclick="addBoxToSec(event,this)" title="이 섹션에 박스 추가">▣ 박스</button><button onclick="moveSec(event,this,-1)">↑</button><button onclick="moveSec(event,this,1)">↓</button><button onclick="deleteSec(event,this)">삭제</button></div>`;
 function section(type,title,body,label){return `<section class="sec" data-type="${type}"${label?' data-label="'+esc(label)+'"':''} onclick="selectSec(this)">${TOOLS}${body}</section>`}
 function makeTextBlock(title,lines){return `<div class="inner"><div class="tag">FRESH FOOD STORY</div><div class="featurehead"><h2 contenteditable="true">${esc(title)}</h2></div><div class="copy" contenteditable="true">${esc(lines.join('\n'))}</div></div>`}
 /* ===== 템플릿 (농산물 / 수산물 / 축산물) · 디자인 ===== */
@@ -720,6 +738,7 @@ function buildPage(src,preview){
 }
 function renderCheck(){let T=TPL[tpl];let bl=splitSource($('raw').value).blocks.filter(b=>b.body.length),MS=matchSecs(T,bl);$('checkList').innerHTML=`<h3>${T.name} 템플릿 섹션 체크</h3>`+T.secs.map(d=>{let ok=MS.matched.some(m=>m.d===d);return `<div class="chk ${ok?'ok':d.req?'no':'opt'}"><span>${d.label}</span><b>${ok?'✓ 입력됨':d.req?'필수 · 없음':'권장'}</b></div>`}).join('')+`<div class="note" style="margin-top:8px">${T.tip}</div>`;$('flowNote').innerHTML='<b>'+T.name+' 상세페이지 흐름</b><br>1. 첫 화면<br>'+T.secs.map((d,i)=>(i+2)+'. '+d.label).join('<br>')}
 function initPickers(){
+ renderCategoryInputs();
  $('tplPick').innerHTML=Object.entries(TPL).map(([k,t])=>`<button data-k="${k}" onclick="setTpl('${k}')"><div style="font-size:20px">${t.ico}</div>${t.name}</button>`).join('');
  renderThemePicker();
 }
@@ -731,7 +750,7 @@ function renderThemePicker(){
 }
 let previewMode=false,designSlot=0;
 function setTpl(k,q){
- if(!TPL[k])return;
+ if(!TPL[k])return;clearElementSelection();
  const prev=tpl;tpl=k;$('page').dataset.template=k;
  // 템플릿을 바꿔도 선택한 디자인 순서(기본/2번째)를 유지
  if(!q){const nc=THEMES_BY_TPL[k]||[];if(nc[designSlot])theme=nc[designSlot].k}
@@ -739,6 +758,7 @@ function setTpl(k,q){
  renderThemePicker();
  $('page').dataset.theme=theme;$('page').dataset.design=theme;
  renderCheck();
+ document.querySelectorAll('[data-cat-card] details').forEach(d=>{d.open=d.closest('[data-cat-card]').dataset.catCard===k});
  if(!q){
   const built=$('page').querySelector(':scope>.sec'),r=$('raw');
   if(!r.value.trim()&&(!built||previewMode)){previewMode=true;buildPage(TPL[k].sample,true);return}
@@ -755,6 +775,33 @@ function setTheme(k){
  if(!choices.some(t=>t.k===k))k='basic';
  theme=k;designSlot=Math.max(0,choices.findIndex(t=>t.k===k));$('page').dataset.theme=k;$('page').dataset.design=k;
  document.querySelectorAll('#themePick button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+}
+const CAT_INPUT_SECTIONS={
+ farm:['원산지','상품 스펙','산지 · 생산자 이야기','선별 기준 · 매리트','맛있게 먹는 방법','보관 방법','수확 · 배송 안내','구매 전 확인사항','자주 묻는 질문','교환 · 환불 안내'],
+ fish:['원산지','상품 스펙','상품 매리트','맛있게 먹는 방법','해동 방법','보관 방법','섭취 시 주의사항','신선 배송 · 포장 안내','자주 묻는 질문','교환 · 환불 안내'],
+ meat:['원산지 · 식육의 종류','상품 스펙','등급 · 이력 정보','부위 특징 · 매리트','맛있게 굽는 방법','해동 방법','보관 방법','구매 전 확인사항','냉장 · 냉동 배송 안내','자주 묻는 질문','교환 · 환불 안내']
+};
+function categoryInputCard(k){
+ const names={farm:'🌾 농산물',fish:'🐟 수산물',meat:'🥩 축산물'};
+ const rows=(CAT_INPUT_SECTIONS[k]||[]).map((name,i)=>catInputRow(k,name,'',i)).join('');
+ return `<div class="cat-input-card" data-cat-card="${k}"><details ${k===tpl?'open':''}><summary class="cat-input-head"><span>${names[k]}</span><span>항목 입력 · 펼치기/접기　⌄</span></summary><div class="cat-input-body"><div class="field"><label>상품명</label><input class="cat-product-title" placeholder="예: 제철 꿀사과 5kg"></div><div class="field"><label>한 줄 소개</label><input class="cat-product-intro" placeholder="상품의 특징을 짧게 소개해 주세요"></div><div class="cat-input-rows" id="catRows-${k}">${rows}</div><button type="button" class="cat-input-add" onclick="addCategoryInputRow('${k}')">＋ 섹션 항목 추가</button></div></details></div>`;
+}
+function catInputRow(k,title,value,index){return `<div class="cat-input-row"><div class="cat-input-row-head"><input type="text" class="cat-section-title" value="${esc(title)}" placeholder="섹션 제목"><button type="button" class="remove-cat-row" onclick="this.closest('.cat-input-row').remove()">삭제</button></div><textarea class="cat-section-body" placeholder="${esc(title)}에 해당하는 상품 정보를 입력하세요.">${esc(value)}</textarea></div>`}
+function renderCategoryInputs(){const root=$('categoryInputs');if(!root)return;root.innerHTML=['farm','fish','meat'].map(categoryInputCard).join('')}
+function addCategoryInputRow(k){const root=$('catRows-'+k);if(!root)return;root.insertAdjacentHTML('beforeend',catInputRow(k,'새 섹션','',root.children.length));}
+function buildFromCategoryInputs(){
+ const k=tpl,root=$('catRows-'+k),card=document.querySelector(`[data-cat-card="${k}"]`);
+ if(!root||!card){toast('선택한 카테고리 입력란을 찾을 수 없습니다.');return}
+ const productTitle=card.querySelector('.cat-product-title').value.trim();
+ const intro=card.querySelector('.cat-product-intro').value.trim();
+ let lines=[productTitle||'오늘의 추천 식품'];
+ if(intro)lines.push(intro);
+ root.querySelectorAll('.cat-input-row').forEach(row=>{
+  const h=row.querySelector('.cat-section-title').value.trim(),v=row.querySelector('.cat-section-body').value.trim();
+  if(h&&v)lines.push('',`○ ${h}`,v);
+ });
+ if(lines.length<=1){toast('최소 한 개 이상의 섹션 내용을 입력해 주세요.');return}
+ $('raw').value=lines.join('\n');renderCheck();previewMode=false;buildPage($('raw').value);
 }
 function loadSample(){let r=$('raw'),cur=r.value.trim();if(cur&&!Object.values(TPL).some(t=>t.sample.trim()===cur)&&!confirm('현재 입력한 상품 정보가 '+TPL[tpl].name+' 템플릿 양식으로 바뀝니다. 계속할까요?'))return;r.value=TPL[tpl].sample;renderCheck();toast(TPL[tpl].name+' 입력 양식을 불러왔습니다. 내용을 채운 뒤 ‘자동 구성’을 누르세요.')}
 function colorToHex(value){
@@ -797,6 +844,26 @@ function syncDesignColorInputs(s){
 }
 function selectSec(s){if(!s)return;document.querySelectorAll('.sec').forEach(x=>x.classList.remove('sel'));selected=s;s.classList.add('sel');syncDesignColorInputs(s);refreshList()}
 function refreshList(){let list=$('sectionList');if(!list)return;list.innerHTML='';document.querySelectorAll('#page>.sec').forEach((s,i)=>{let t=s.dataset.type;let label=s.dataset.label||({hero:'첫 화면 / 상품 대표',origin:'원산지',spec:'상품 스펙',howto:'맛있게 먹는 방법',faq:'자주 묻는 질문',story:'상품 스토리',closing:'마무리',image:'이미지'})[t]||'추가 섹션';let d=document.createElement('div');d.className='item'+(s===selected?' active':'');d.textContent=(i+1)+'. '+label;d.onclick=()=>selectSec(s);list.appendChild(d)})}
+/* ===== 개별 텍스트/박스 편집 ===== */
+let activeElement=null,elementResize=null;
+const EDITABLE_SELECTOR='h1,h2,h3,p,.copy,.sub,.tag,.eyebrow,.hero-kicker,.hero-stamp,.hero-bottomline,.specitem small,.specitem b,.point span,.faq .q,.faq .a,.ingredients,.specitem,.point,.faq,.featurehead,.highlight,.notice,.imgblock,.hero-visual,.editable-box,.tbox';
+function clearElementSelection(){if(activeElement){activeElement.classList.remove('element-selected');const h=activeElement.querySelector(':scope > .element-resize');if(h)h.remove()}activeElement=null;$('elementEditor').style.display='none'}
+function selectElement(el){if(!el||!$('page').contains(el)||el.classList.contains('sec')||el.closest('.tools,.imgtools,.tbox .tb-bar'))return;clearElementSelection();activeElement=el;el.classList.add('element-selected');
+ const isText=el.matches('h1,h2,h3,p,.copy,.sub,.tag,.eyebrow,.hero-kicker,.hero-stamp,.hero-bottomline,.specitem small,.specitem b,.point span,.faq .q,.faq .a,.ingredients,.tb-text,.editable-box');
+ if(getComputedStyle(el).display==='inline')el.style.display='inline-block';
+ if(isText&&!el.isContentEditable)el.contentEditable='true';
+ if(!el.querySelector(':scope > .element-resize')){const h=document.createElement('span');h.className='element-resize';h.title='드래그해서 크기 조절';h.contentEditable='false';el.appendChild(h);h.addEventListener('pointerdown',startElementResize)}
+ positionElementEditor();}
+function positionElementEditor(){if(!activeElement)return;const r=activeElement.getBoundingClientRect(),b=$('elementEditor');b.style.display='flex';b.style.top=Math.max(4,r.top-42)+'px';b.style.left=Math.max(4,Math.min(r.left,window.innerWidth-b.offsetWidth-4))+'px'}
+window.addEventListener('scroll',positionElementEditor,true);window.addEventListener('resize',positionElementEditor);
+$('page').addEventListener('click',e=>{if(textMode||e.target.closest('.tools,.imgtools,.imgslot,.slotx,.element-resize'))return;const el=e.target.closest(EDITABLE_SELECTOR);if(el&&!el.closest('.tools,.imgtools')){selectElement(el)}},true);
+function startElementMove(e){if(!activeElement)return;e.preventDefault();const el=activeElement,r=el.getBoundingClientRect(),sx=e.clientX,sy=e.clientY;const oldLeft=parseFloat(el.style.left)||0,oldTop=parseFloat(el.style.top)||0;el.style.position='relative';const move=ev=>{el.style.left=(oldLeft+ev.clientX-sx)+'px';el.style.top=(oldTop+ev.clientY-sy)+'px';positionElementEditor()};const up=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',up)};document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up)}
+$('elementEditor').querySelector('.ee-grip').addEventListener('pointerdown',startElementMove);
+function startElementResize(e){e.preventDefault();e.stopPropagation();const el=e.currentTarget.parentElement,r=el.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,sw=r.width,sh=r.height;const move=ev=>{el.style.width=Math.max(60,sw+ev.clientX-sx)+'px';el.style.minHeight=Math.max(28,sh+ev.clientY-sy)+'px';positionElementEditor()};const up=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',up)};document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up)}
+function deleteElement(){if(!activeElement)return;const el=activeElement;clearElementSelection();el.remove();toast('선택한 요소를 삭제했습니다.')}
+function duplicateElement(){if(!activeElement)return;const clone=activeElement.cloneNode(true);clone.classList.remove('element-selected');const h=clone.querySelector(':scope > .element-resize');if(h)h.remove();clone.style.left=((parseFloat(activeElement.style.left)||0)+18)+'px';clone.style.top=((parseFloat(activeElement.style.top)||0)+18)+'px';activeElement.after(clone);selectElement(clone);toast('요소를 복제했습니다.')}
+function addBoxToSec(e,b){e.stopPropagation();const sec=b.closest('.sec');const host=sec.querySelector(':scope > .inner,:scope > .feature,:scope > .notice,:scope > .highlight,:scope > .origin')||sec;const box=document.createElement('div');box.className='editable-box';box.contentEditable='true';box.textContent='새 박스 내용을 입력하세요.';host.appendChild(box);selectSec(sec);selectElement(box);box.scrollIntoView({behavior:'smooth',block:'center'});toast('새 박스를 추가했습니다. 내용을 입력하고 크기와 위치를 조절하세요.')}
+
 function moveSec(e,b,d){e.stopPropagation();let s=b.closest('.sec');if(d<0&&s.previousElementSibling)s.parentNode.insertBefore(s,s.previousElementSibling);if(d>0&&s.nextElementSibling)s.parentNode.insertBefore(s.nextElementSibling,s);selectSec(s)}
 function deleteSec(e,b){e.stopPropagation();let s=b.closest('.sec');s.remove();selected=$('page').querySelector('.sec');selectSec(selected);toast('섹션을 삭제했습니다.')}
 function addTextSection(){let s=document.createElement('section');s.className='sec';s.dataset.type='story';s.innerHTML=`${TOOLS}${makeTextBlock('새로운 상품 이야기',['상품의 특징을 입력해 주세요.'])}`;$('page').insertBefore(s,$('page').lastElementChild);selectSec(s)}
@@ -958,7 +1025,7 @@ function resetStyle(){
 }
 function saveProject(){let d={html:$('page').innerHTML.replace(/ lts-on/g,''),raw:$('raw').value,images,tpl,theme};let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:'application/json'}));a.download='푸드상세페이지-프로젝트.json';a.click();URL.revokeObjectURL(a.href);toast('프로젝트 파일을 저장했습니다.')}
 function loadProject(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);$('page').innerHTML=d.html;upgradeTools();$('raw').value=d.raw||'';images=d.images||images;if(d.tpl){setTpl(d.tpl,1);$('page').dataset.template=d.tpl;}if(d.theme)setTheme(d.theme);renderCheck();selected=$('page').querySelector('.sec');selectSec(selected);toast('프로젝트를 불러왔습니다.')}catch(x){toast('프로젝트 파일을 읽지 못했습니다.')}};r.readAsText(f)}
-async function downloadJPG(){try{toast('고화질 JPG를 만드는 중입니다.');if(!window.html2canvas)await new Promise((ok,no)=>{let s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});document.querySelectorAll('.sec').forEach(s=>s.classList.remove('sel'));$('page').classList.add('exporting');document.querySelectorAll('.imgblock').forEach(b=>{if(!b.querySelector('.imgslot.filled'))b.classList.add('allempty')});let pg=$('page');let pw=Math.round(pg.getBoundingClientRect().width);let c=await html2canvas(pg,{scale:2,useCORS:true,backgroundColor:'#fff',logging:false,width:pw,windowWidth:Math.max(pw,document.documentElement.clientWidth),onclone:(doc)=>{let p=doc.getElementById('page');p.style.width=pw+'px';p.style.maxWidth='none';p.style.margin='0';p.style.boxShadow='none';p.querySelectorAll('.sec').forEach(s=>{s.style.outline='none'});p.querySelectorAll('.hero,.origin,.end,.notice').forEach(el=>{el.style.marginLeft='-2px';el.style.marginRight='-2px';el.style.width='calc(100% + 4px)'});}});let a=document.createElement('a');a.download='식품-상품상세페이지.jpg';a.href=c.toDataURL('image/jpeg',.94);a.click();if(selected)selected.classList.add('sel');toast('JPG 다운로드가 완료됐습니다.')}catch(e){toast('JPG 생성 실패. 인터넷 연결을 확인해 주세요.');if(selected)selected.classList.add('sel')}finally{$('page').classList.remove('exporting');document.querySelectorAll('.imgblock.allempty').forEach(b=>b.classList.remove('allempty'))}}
+async function downloadJPG(){try{clearElementSelection();toast('고화질 JPG를 만드는 중입니다.');if(!window.html2canvas)await new Promise((ok,no)=>{let s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});document.querySelectorAll('.sec').forEach(s=>s.classList.remove('sel'));$('page').classList.add('exporting');document.querySelectorAll('.imgblock').forEach(b=>{if(!b.querySelector('.imgslot.filled'))b.classList.add('allempty')});let pg=$('page');let pw=Math.round(pg.getBoundingClientRect().width);let c=await html2canvas(pg,{scale:2,useCORS:true,backgroundColor:'#fff',logging:false,width:pw,windowWidth:Math.max(pw,document.documentElement.clientWidth),onclone:(doc)=>{let p=doc.getElementById('page');p.style.width=pw+'px';p.style.maxWidth='none';p.style.margin='0';p.style.boxShadow='none';p.querySelectorAll('.sec').forEach(s=>{s.style.outline='none'});p.querySelectorAll('.hero,.origin,.end,.notice').forEach(el=>{el.style.marginLeft='-2px';el.style.marginRight='-2px';el.style.width='calc(100% + 4px)'});}});let a=document.createElement('a');a.download='식품-상품상세페이지.jpg';a.href=c.toDataURL('image/jpeg',.94);a.click();if(selected)selected.classList.add('sel');toast('JPG 다운로드가 완료됐습니다.')}catch(e){toast('JPG 생성 실패. 인터넷 연결을 확인해 주세요.');if(selected)selected.classList.add('sel')}finally{$('page').classList.remove('exporting');document.querySelectorAll('.imgblock.allempty').forEach(b=>b.classList.remove('allempty'))}}
 $('page').addEventListener('click',e=>{let s=e.target.closest('.sec');if(s&&!e.target.closest('.tools'))selectSec(s)});
 $('page').addEventListener('mousedown',()=>{clearLiveHighlight();liveTextSpan=null;savedTextRange=null;$('textSelectNote').textContent='선택된 글자가 없습니다.';});
 $('page').addEventListener('mouseup',captureTextSelection);$('page').addEventListener('keyup',captureTextSelection);
@@ -967,7 +1034,7 @@ $('page').addEventListener('mouseup',captureTextSelection);$('page').addEventLis
 const History={stack:[],idx:-1,timer:null,restoring:false,MAX:40,LIMIT:150000000,obs:null};
 function snapState(){
  const p=$('page');
- const html=p.innerHTML.replace(/class="([^"]*)"/g,(m,c)=>'class="'+c.split(/\s+/).filter(x=>x&&x!=='sel'&&x!=='lts-on'&&x!=='allempty').join(' ')+'"');
+ const html=p.innerHTML.replace(/class="([^"]*)"/g,(m,c)=>'class="'+c.split(/\s+/).filter(x=>x&&x!=='sel'&&x!=='lts-on'&&x!=='allempty'&&x!=='element-selected').join(' ')+'"').replace(/<span class="element-resize"[^>]*><\/span>/g,'');
  const secs=[...p.querySelectorAll(':scope>.sec')];
  return{html,sel:Math.max(0,secs.indexOf(selected)),dt:p.dataset.template||'',dth:p.dataset.theme||'',style:p.getAttribute('style')||'',cls:p.className.split(/\s+/).filter(x=>x&&x!=='exporting').join(' ')};
 }
@@ -1109,7 +1176,7 @@ $('page').addEventListener('click',e=>{
  const sec=e.target.closest('.sec');if(!sec)return;
  e.preventDefault();e.stopPropagation();placeTbox(sec,e.clientX,e.clientY);
 },true);
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&textMode)setTextMode(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(textMode)setTextMode(false);clearElementSelection()}});
 function addTextToSec(e,b){
  e.stopPropagation();closeShapeMenu();
  const sec=b.closest('.sec'),r=sec.getBoundingClientRect();
