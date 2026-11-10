@@ -299,6 +299,23 @@ body.tbdrag #page .sec{overflow:visible!important}
 .exporting .tbox{outline:none!important}.exporting .tbox .tb-bar{display:none!important}
 </style>
 <style>.page:empty{min-height:420px;display:grid;place-items:center;padding:40px;background:#fff}.page:empty::before{content:"상품 템플릿을 누르면 구성 미리보기가 보입니다.\A상품 정보를 입력한 뒤 ‘✦ 상세페이지 자동 구성’을 눌러 주세요.";white-space:pre-line;text-align:center;color:#8a918b;font-size:14px;line-height:1.9}</style>
+
+<style id="requestedFontDefaults">
+/* 상세페이지 글자 기본값 조정: 첫 화면(hero)과 마무리(end)는 기존 크기 유지 */
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) h2,
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) .origin h2{font-size:50px}
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) p,
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) .specitem b,
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) .copy,
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) .notice,
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) .q,
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) .a,
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) .ingredients,
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) .point span,
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) .tbox .tb-text{font-size:30px}
+#page .sec:not([data-type="hero"]):not([data-type="closing"]) .tag{font-size:20px}
+</style>
+
 </head>
 <body>
 <div id="authView"><div class="authbox"><div class="alogo">푸드 상세페이지 <em>스튜디오</em></div>
@@ -350,7 +367,7 @@ body.tbdrag #page .sec{overflow:visible!important}
 <aside class="panel right"><h2>⑤ 디자인 편집</h2><div class="note">선택한 섹션의 디자인을 조정합니다.</div><h3>선택 글자 편집</h3>
 <div class="note">미리보기에서 글자를 드래그해 선택한 뒤 아래 설정을 적용하세요.</div>
 <div class="field"><label>폰트</label><select id="textFont" oninput="liveTextFont(this.value)" style="width:100%;padding:9px;border:1px solid #dcded9;border-radius:8px"><option value='"Noto Sans KR",Arial,sans-serif'>고딕 · Noto Sans</option><option value='"Noto Serif KR","Nanum Myeongjo",serif'>명조 · Noto Serif</option><option value='Arial,sans-serif'>Arial</option><option value='Georgia,serif'>Georgia</option></select></div>
-<div class="field"><label>글자 크기</label><div style="display:flex;align-items:center;gap:10px"><input id="textSize" type="range" min="10" max="64" value="25" style="flex:1" oninput="liveTextSize(this.value)"><input id="textSizeNumber" type="number" min="10" max="64" value="25" style="width:68px;padding:7px;border:1px solid #dcded9;border-radius:8px" oninput="liveTextSize(this.value)"></div><div class="note" id="textSizeLabel">25px</div></div>
+<div class="field"><label>글자 크기</label><div style="display:flex;align-items:center;gap:10px"><input id="textSize" type="range" min="10" max="64" value="30" style="flex:1" oninput="liveTextSize(this.value)"><input id="textSizeNumber" type="number" min="10" max="64" value="30" style="width:68px;padding:7px;border:1px solid #dcded9;border-radius:8px" oninput="liveTextSize(this.value)"></div><div class="note" id="textSizeLabel">25px</div></div>
 <div class="field"><label>글자 색상</label><input type="color" id="textColor" value="#27312c" oninput="liveTextColor(this.value)"></div>
 
 <div class="note" id="textSelectNote" style="margin-top:7px">선택된 글자가 없습니다.</div>
