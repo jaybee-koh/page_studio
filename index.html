@@ -675,7 +675,7 @@ spec:(d,b)=>{let p=parseSpecs(b.body);let c=p.rows.map(([k,v])=>`<div class="spe
 points:(d,b)=>lst(d,b,'✓'),steps:(d,b)=>lst(d,b,0),
 text:(d,b)=>`<div class="inner"><div class="tag">${d.tag}</div><div class="featurehead"><h2 contenteditable="true">${esc(b.title)}</h2></div><div class="copy" contenteditable="true">${esc(b.body.join('\n'))}</div></div>`,
 notice:(d,b)=>`<div class="notice inner"><div class="tag">${d.tag}</div><h2 contenteditable="true">${esc(b.title)}</h2><div class="copy" contenteditable="true">${esc(b.body.join('\n'))}</div></div>`,
-faq:(d,b)=>{let qs=[],q=null,ans=[];b.body.forEach(line=>{if(/^Q[.．]/i.test(line)){if(q)qs.push([q,ans.join('\n')]);q=line.replace(/^Q[.．]\s*/i,'');ans=[]}else if(/^A[.．]/i.test(line))ans.push(line.replace(/^A[.．]\s*/i,''));else if(q)ans.push(line)});if(q)qs.push([q,ans.join('\n')]);let f=qs.map(([q,a])=>`<div class="faq"><div class="q" contenteditable="true"><span>Q.</span>${esc(q)}</div><div class="a" contenteditable="true"><b class="ak">A.</b> ${esc(a)}</div></div>`).join('')||`<div class="copy" contenteditable="true">${esc(b.body.join('\n'))}</div>`;return `<div class="inner"><div class="center"><div class="tag">${d.tag}</div><h2 contenteditable="true">${esc(b.title)}</h2></div>${f}</div>`}
+faq:(d,b)=>{let qs=[],q=null,ans=[];b.body.forEach(line=>{if(/^\s*[\/／]+\s*$/.test(line))return;if(/^Q\s*[.．:)]/i.test(line)){if(q)qs.push([q,ans.join('\n')]);q=line.replace(/^Q\s*[.．:)]\s*/i,'');ans=[]}else if(/^A\s*[.．:)]/i.test(line))ans.push(line.replace(/^A\s*[.．:)]\s*/i,''));else if(q)ans.push(line)});if(q)qs.push([q,ans.join('\n')]);let f=qs.map(([q,a])=>`<div class="faq"><div class="q" contenteditable="true"><span>Q.</span>${esc(q)}</div><div class="a" contenteditable="true"><b class="ak">A.</b> ${esc(a)}</div></div>`).join('')||`<div class="copy" contenteditable="true">${esc(b.body.join('\n'))}</div>`;return `<div class="inner"><div class="center"><div class="tag">${d.tag}</div><h2 contenteditable="true">${esc(b.title)}</h2></div>${f}</div>`}
 };
 const CATS=[['r',/교환|환불|반품/],['f',/자주|FAQ|Q ?& ?A|궁금|알고 먹/i],['t',/해동/],['k',/보관/],['o',/원산지/],['g',/등급|이력/],['s',/스펙|상품 ?정보|제품 ?정보/],['h',HOW],['p',/매리트|메리트|선별|차별|특징|장점|확실/],['d',/배송|포장|신선/],['c',/확인|주의|안전|유의|알레르기|기생충/]];
 const catOf=t=>{for(const [k,r] of CATS)if(r.test(t))return k;return null};
@@ -753,75 +753,103 @@ function buildPage(src,preview,quiet){
 }
 function renderCheck(){let T=TPL[tpl];if($('flowNote'))$('flowNote').innerHTML='<b>'+T.name+' 상세페이지 흐름</b><br>1. 첫 화면<br>'+T.secs.map((d,i)=>(i+2)+'. '+d.label).join('<br>')}
 
-/* 자유 형식 상품정보 파서: 순서·기호·공백·섹션 제목에 의존하지 않고 문맥으로 분류 */
+/* 자유 형식 상품정보 파서: 제목/소개/섹션/스펙/FAQ를 문맥에 맞게 분리 */
 function splitSource(text){
  const raw=String(text||'').replace(/\r/g,'').trim();
  if(!raw)return {title:'오늘의 추천 식품',intro:'',blocks:[]};
- const lines=raw.split(/\n+/).map(v=>v.trim()).filter(Boolean);
- const cleanLine=v=>v.replace(/^[\s>*•·\-–—※○●▪︎]+/,'').replace(/\*\*/g,'').trim();
+ const lines=raw.split('\n').map(v=>v.trim());
+ const cleanLine=v=>v.replace(/\*\*/g,'').replace(/^[\s>*•·\-–—※○●▪︎]+/,'').trim();
+ const meaningful=lines.map((v,i)=>({v:cleanLine(v),i})).filter(x=>x.v);
  let title='오늘의 추천 식품',intro='',start=0;
- const first=cleanLine(lines[0]||'');
- const named=first.match(/^(?:상품명|제품명|상품|제품)\s*[:：\-]?\s*(.+)$/i);
- if(named){title=named[1].trim();start=1}
- else if(first.length<=70&&!/[:：]/.test(first)&&!/(원산지|중량|보관|배송|해동|등급|교환|환불)/.test(first)){
-   title=first;start=1;
- }
- if(start<lines.length){
-   const candidate=cleanLine(lines[start]);
-   if(candidate.length<=150&&!classifyFreeLine(candidate)&&!/^Q[.．:)]/i.test(candidate)){intro=candidate;start++}
- }
- const groups=[];
- const headingPattern=/^(?:○\s*)?(원산지|상품\s*(?:정보|스펙)|제품\s*(?:정보|스펙)|산지|생산자|재배|선별|특징|장점|매리트|메리트|맛있게\s*먹|먹는\s*방법|조리법|요리법|굽는\s*방법|해동|보관|배송|포장|주의\s*사항|구매\s*전|자주\s*묻는|FAQ|교환|환불|반품|등급|이력|성분|원재료)(?:\s*[:：\-!！]?.*)?$/i;
- function classifyFreeLine(line){
-   const t=line.toLowerCase();
-   if(/교환|환불|반품|취소|반송|접수\s*기한/.test(t))return 'r';
-   if(/자주\s*묻|faq|질문|답변|^q[.．:)]|궁금/.test(t))return 'f';
-   if(/해동|냉장해동|냉동.?해동/.test(t))return 't';
-   if(/보관|냉장\s*보관|냉동\s*보관|실온/.test(t))return 'k';
-   if(/원산지|국내산|국산|수입산|원양산|연근해산|산지\s*지역/.test(t))return 'o';
-   if(tpl==='farm'&&/산지|생산자|재배|농장|농부/.test(t))return 'st';
-   if(/등급|이력번호|이력\s*정보|도축일|도축\s*일자/.test(t))return 'g';
-   if(/배송|택배|포장|발송|출고|수령|아이스팩|스티로폼/.test(t))return 'd';
-   if(/주의|알레르기|알러지|기생충|섭취\s*시|안전\s*안내|유의/.test(t))return 'c';
-   if(/당도|브릭스|산지|생산자|재배|농장|어획|손질|품질|선별|특징|장점|매리트|메리트|추천|풍미|식감|육질|부위/.test(t))return 'p';
-   if(/먹는\s*방법|맛있게|조리|요리|굽는|레시피|활용법/.test(t))return 'h';
-   if(/스펙|상품\s*정보|제품\s*정보|중량|용량|구성|수량|사이즈|크기|규격|품목|품종|소비기한|유통기한|제조일|생산일|포장단위|성분|원재료|보관방법|판매원|품질유지/.test(t))return 's';
-   return null;
- }
- let current=null;
- const push=(cat,heading,line)=>{
-   if(!current||current.cat!==cat|| (heading&&current.title!==heading)){
-     current={title:heading||DEF[cat]||'추가 상품 정보',body:[],cat:cat||null};groups.push(current);
+ if(meaningful.length){
+   const first=meaningful[0].v;
+   const named=first.match(/^(?:상품명|제품명|상품|제품)\s*[:：\-]?\s*(.+)$/i);
+   if(named){title=named[1].trim();start=meaningful[0].i+1}
+   else if(first.length<=70&&!/[:：]/.test(first)&&!/(원산지|중량|보관|배송|해동|등급|교환|환불)/.test(first)){
+     title=first;start=meaningful[0].i+1;
    }
-   if(line)current.body.push(line);
+ }
+ const catFromHeading=h=>{
+   const t=h.toLowerCase().replace(/[!！?.。:：]/g,'').trim();
+   if(/원산지|원산지\s*공개|국내산/.test(t))return 'o';
+   if(/상품\s*(?:스펙|정보)|제품\s*(?:스펙|정보)|스펙\s*요약/.test(t))return 's';
+   if(/알고\s*먹으면|자주\s*묻|faq|q\s*&\s*a|질문/.test(t))return 'f';
+   if(/어떻게\s*먹어야|맛있게\s*먹|먹는\s*방법|조리|요리|레시피|굽는/.test(t))return 'h';
+   if(/매리트|메리트|장점|특징|선별|차별|확실/.test(t))return 'p';
+   if(/해동/.test(t))return 't';
+   if(/보관/.test(t))return 'k';
+   if(/배송|포장|발송|출고/.test(t))return 'd';
+   if(/주의|확인\s*사항|안전|유의|알레르기/.test(t))return 'c';
+   if(/교환|환불|반품/.test(t))return 'r';
+   if(/등급|이력/.test(t))return 'g';
+   if(/산지|생산자|재배|농장/.test(t))return tpl==='farm'?'st':'p';
+   return null;
  };
+ const classifySpecLabel=k=>/^(구성|중량|중량\s*[\/·]\s*사이즈|사이즈|규격|용량|수량|생물\s*여부|성분\s*표시|성분|원재료|원재료명|포장\s*방식|포장방식|특이사항|품목|상품명|제품명|품종|보관방법|소비기한|유통기한)$/i.test(k.trim());
+ const blocks=[];let current=null;
+ const begin=(cat,heading)=>{current={title:heading||({o:'원산지',s:'상품 스펙',h:'맛있게 먹는 방법',p:'상품 매리트',f:'자주 묻는 질문'}[cat]||DEF[cat]||'추가 상품 정보'),body:[],cat:cat||null};blocks.push(current);return current};
+ // 첫 번째 설명 문장은 대표 상품 소개로 분리
+ let firstContent=-1;
+ for(let i=start;i<lines.length;i++)if(cleanLine(lines[i])){firstContent=i;break}
+ if(firstContent>=0){
+   const candidate=cleanLine(lines[firstContent]);
+   if(candidate&&!/^(?:○|Q\s*[.．:)]|※)/i.test(lines[firstContent])&&!catFromHeading(candidate)&&!/^[-*•]/.test(lines[firstContent])&&candidate.length<=180){intro=candidate;start=firstContent+1;}
+ }
+ let faqMode=false;
  for(let i=start;i<lines.length;i++){
-   let line=cleanLine(lines[i]);if(!line)continue;
-   const heading= line.replace(/^(?:○\s*)/,'').trim();
-   const explicit=headingPattern.test(heading)&&heading.length<55;
-   if(explicit){
-     const inline=heading.match(/^(.{1,30}?)[：:]\s*(.+)$/);
-     const label=inline?inline[1]:heading.replace(/[!！.。]+$/,'');
-     const cat=classifyFreeLine(label)||classifyFreeLine(heading);
-     const rest=inline?inline[2]:'';
-     current={title:label,body:[],cat:cat||null};groups.push(current);
-     if(rest)current.body.push(rest);
+   let rawLine=lines[i];if(!rawLine.trim())continue;
+   let line=rawLine.replace(/\*\*/g,'').trim();
+   if(line==='/'||/^\s*[\/／]+\s*$/.test(line))continue;
+   const headingText=line.replace(/^\s*○\s*/,'').replace(/[!！?.。:：]+$/,'').trim();
+   const isBulletHeading=/^\s*○/.test(line);
+   const hcat=catFromHeading(headingText);
+   const plainHeader=/^(?:원산지(?:\s*공개(?:\s*합니다)?)?|(?:상품|제품)\s*(?:스펙|정보)(?:\s*요약(?:\s*합니다)?)?|어떻게\s*먹어야\s*맛나나요|(?:맛있게\s*)?(?:먹는\s*방법|조리법|요리법)|상품의?\s*(?:확실한\s*)?(?:매리트|메리트)|(?:매리트|메리트|장점|특징)|알고\s*먹으면\s*더\s*맛있어요|자주\s*묻는\s*질문|FAQ|Q\s*&\s*A|해동(?:\s*방법)?|보관(?:\s*방법)?|배송\s*안내|포장\s*안내|주의\s*사항|구매\s*전\s*확인(?:\s*사항)?|교환\s*·?\s*환불(?:\s*안내)?)$/i.test(headingText);
+   const isHeading=(isBulletHeading||plainHeader)&&headingText.length<=65&&!/^Q\s*[.．:)]/i.test(headingText)&&!/^A\s*[.．:)]/i.test(headingText);
+   if(isHeading){
+     const cat=hcat||null;
+     begin(cat,headingText);
+     faqMode=cat==='f';
      continue;
    }
-   const m=line.match(/^([^:：]{1,24})\s*[:：]\s*(.+)$/);
-   if(m){
-     const cat=classifyFreeLine(m[1]+' '+m[2]);
-     if(cat){push(cat,cat==='s'?'상품 스펙':null,line);continue}
+   if(/^Q\s*[.．:)]/i.test(line)){
+     if(!current||current.cat!=='f')begin('f','자주 묻는 질문');
+     faqMode=true;current.body.push('Q. '+line.replace(/^Q\s*[.．:)]\s*/i,''));continue;
    }
-   if(/^q\s*[.．:)]/i.test(line)){push('f','자주 묻는 질문',line);continue}
-   const cat=classifyFreeLine(line);
-   push(cat,cat?null:'추가 상품 정보',line);
+   if(/^A\s*[.．:)]/i.test(line)){
+     if(!current||current.cat!=='f')begin('f','자주 묻는 질문');
+     faqMode=true;current.body.push('A. '+line.replace(/^A\s*[.．:)]\s*/i,''));continue;
+   }
+   if(faqMode&&current&&current.cat==='f'){
+     current.body.push(line);continue;
+   }
+   const spec=line.match(/^[※*]?\s*([^:：]{1,24})\s*[:：]\s*(.+)$/);
+   if(spec&&(classifySpecLabel(spec[1])||classifySpecLabel(spec[1].replace(/\s/g,'')))){
+     if(!current||current.cat!=='s')begin('s','상품 스펙');
+     current.body.push('※ '+spec[1].trim()+' : '+spec[2].trim());faqMode=false;continue;
+   }
+   // 스펙 제목 다음에 오는 일반적인 항목도 스펙 표에 포함
+   if(current&&current.cat==='s'&&/^[※*]/.test(line)){
+     const extra=line.replace(/^[※*]\s*/,'');
+     const prev=current.body[current.body.length-1]||'';
+     if(/^※\s*특이사항\s*[:：]/.test(prev))current.body[current.body.length-1]+='\n'+extra;
+     else current.body.push('※ '+extra);
+     continue;
+   }
+   const inferred=catFromHeading(line);
+   if(!current){begin(inferred,'추가 상품 정보')}
+   else if(!current.cat&&inferred){current.cat=inferred;current.title=DEF[inferred]||current.title}
+   // 본문 문장 안의 키워드로 기존 섹션을 갑자기 바꾸지 않고, 제목/문맥을 우선
+   current.body.push(line.replace(/^※\s*/,''));
  }
- const blocks=groups.filter(g=>g.body.length).map(g=>({
-   title:g.title,body:g.body,cat:g.cat
- }));
- // 섹션이 없는 템플릿 카테고리의 내용도 버리지 않고 추가 섹션으로 노출
- return {title,intro,blocks};
+ // FAQ에 Q/A가 함께 들어가도록 하며, 내용 없는 헤더는 제외
+ const result=blocks.filter(b=>b.body.some(x=>String(x).trim())).map(b=>({title:b.title,body:b.body,cat:b.cat}));
+ // 중복 카테고리는 원래 순서를 유지하며 하나로 합침
+ const merged=[],byCat={};
+ result.forEach(b=>{
+   if(b.cat&&byCat[b.cat])byCat[b.cat].body.push(...b.body);
+   else{merged.push(b);if(b.cat)byCat[b.cat]=b;}
+ });
+ return {title,intro,blocks:merged};
 }
 function initPickers(){
  $('tplPick').innerHTML=Object.entries(TPL).map(([k,t])=>`<button data-k="${k}" onclick="setTpl('${k}')"><div style="font-size:20px">${t.ico}</div>${t.name}</button>`).join('');
