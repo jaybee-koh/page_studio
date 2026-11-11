@@ -358,15 +358,10 @@
 #elementEditor .ee-grip{cursor:grab;padding:5px 8px;background:#d78c45;color:#302418;border-radius:6px;font-weight:800;touch-action:none}
 #elementEditor .ee-grip:active{cursor:grabbing}
 #page .element-selected{outline:2px solid #e58b37!important;outline-offset:2px;position:relative}
-/* 개별 박스 크기 조절 시 같은 섹션의 형제 요소가 함께 늘어나지 않도록 */
-#page .element-selected.element-resizable{align-self:start!important;justify-self:start!important;flex:none!important;box-sizing:border-box!important;max-width:none!important}
-#page .specgrid,#page .pointlist{align-items:start;grid-auto-rows:min-content}
-#page .specgrid>.specitem,#page .pointlist>.point{align-self:start;justify-self:start}
-#page .element-resize{position:absolute;right:-5px;bottom:-5px;width:15px;height:15px;background:#e58b37;border:2px solid #fff;border-radius:4px;z-index:8;cursor:nwse-resize;touch-action:none}
 #page .element-selected[contenteditable="true"]{cursor:text}
 #page .editable-box{position:relative;margin:18px 0;padding:24px 28px;border:1px solid #d9ded5;background:#f5f7f1;border-radius:12px;min-height:90px;font-size:20px;line-height:1.8;color:#354238;white-space:pre-wrap}
 #page .editable-box:before{content:'CUSTOM CONTENT';display:block;font-size:10px;letter-spacing:2px;font-weight:900;color:#79916f;margin-bottom:8px}
-#page.exporting .element-resize,#page.exporting #elementEditor{display:none!important}
+#page.exporting,#page.exporting #elementEditor{display:none!important}
 
 .category-inputs{display:grid;gap:10px;margin-top:10px}.cat-input-card{border:1px solid #e4e6e1;border-radius:12px;background:#fff;overflow:hidden}.cat-input-head{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:#f6f7f3;font-weight:800}.cat-input-body{padding:10px;display:grid;gap:10px}.cat-input-row{border:1px solid #eceee9;border-radius:9px;padding:9px;background:#fff}.cat-input-row-head{display:flex;gap:7px;align-items:center;margin-bottom:6px}.cat-input-row-head input{flex:1;min-width:0;font-weight:700}.cat-input-row textarea{width:100%;min-height:66px;resize:vertical}.cat-input-row button,.cat-input-head button{border:1px solid #ddd;background:#fff;border-radius:7px;padding:6px 9px;cursor:pointer}.cat-input-row .remove-cat-row{color:#b43b32}.cat-input-add{width:100%;border:1px dashed #c9cec5!important;background:#fafbf8!important;color:#465447;padding:9px!important;font-weight:700}.cat-input-card details summary{cursor:pointer;list-style:none}.cat-input-card details summary::-webkit-details-marker{display:none}
 /* 카테고리별 입력 패널은 컴팩트하게 */
@@ -485,16 +480,11 @@ body.tbdrag #page .sec{overflow:visible!important}
 <h2>① 템플릿 · 디자인</h2>
 <div class="note">상품 종류에 맞는 템플릿을 고르면 섹션 구성과 필수 항목이 달라집니다. 디자인은 언제든 바꿀 수 있습니다.</div>
 <h3 style="margin-top:10px">상품 템플릿</h3><div class="tplpick" id="tplPick"></div>
-<h3 style="margin-top:14px">선택한 템플릿 상품 정보 입력</h3>
-<div class="note">위에서 농산물·수산물·축산물 중 하나를 선택하면 해당 상품에 맞는 입력 항목만 표시됩니다. 입력 내용은 템플릿을 바꿔도 보존됩니다.</div>
-<div class="category-inputs" id="categoryInputs"></div>
-<div class="note category-live-note">입력하는 즉시 오른쪽 미리보기에 반영됩니다. 상품명과 내용을 입력해 보세요.</div>
-<div class="checklist" id="checkList"></div>
 <h3>디자인 선택</h3><div class="themepick" id="themePick"></div>
-<h2 style="margin-top:22px">② 상품 정보 한 번에 입력</h2>
-<div class="field"><label>상품 정보 원문</label><textarea id="raw" spellcheck="false" oninput="renderCheck()" placeholder="상품 정보 전체를 한 번에 붙여넣으세요."></textarea></div>
-<div class="note">이 입력 방식은 상품 정보를 한 번에 붙여넣어 구성할 때 사용합니다. 아래 ④ 섹션 관리에서 기존처럼 섹션별 내용을 조정할 수 있습니다.</div>
-<button class="light" style="width:100%;margin-top:7px" onclick="previewMode=false;buildPage()">원문 입력 내용으로 자동 구성</button>
+<h2 style="margin-top:22px">② 상품 정보 자유 입력</h2>
+<div class="field"><label>상품 정보</label><textarea id="raw" spellcheck="false" oninput="renderCheck()" placeholder="상품 정보를 형식에 상관없이 자유롭게 입력하거나 붙여넣으세요.\n\n상품명, 원산지, 중량, 특징, 보관법, 배송 안내 등 어떤 순서로 입력해도 됩니다."></textarea></div>
+<div class="note">정해진 순서나 제목, 기호, 띄어쓰기가 필요 없습니다. 입력한 내용을 의미에 따라 자동 분류하고, 맞는 섹션이 없으면 새로운 내용 섹션으로 추가합니다.</div>
+<button class="light" style="width:100%;margin-top:7px" onclick="previewMode=false;buildPage()">상품 정보로 상세페이지 자동 구성</button>
 <h3>④ 섹션 관리</h3><div class="sectionlist" id="sectionList"></div>
 <button class="light" style="width:100%;margin-top:10px" onclick="addTextSection()">+ 직접 작성 섹션 추가</button>
 
@@ -512,7 +502,7 @@ body.tbdrag #page .sec{overflow:visible!important}
 <h3>섹션 배경</h3><div class="field"><input type="color" id="bg" value="#ffffff" oninput="styleSelected('background',this.value)"></div><h3>글자 색상</h3><div class="field"><input type="color" id="fg" value="#27312c" oninput="styleSelected('color',this.value)"></div><h3>섹션 여백</h3><div class="field"><div style="display:flex;align-items:center;gap:10px"><input id="sectionPaddingRange" type="range" min="16" max="90" value="42" style="flex:1" oninput="paddingSelected(this.value)"><input id="sectionPaddingNumber" type="number" min="16" max="90" value="42" style="width:68px;padding:7px;border:1px solid #dcded9;border-radius:8px" oninput="paddingSelected(this.value)"></div></div><h3>제목 크기</h3><div class="field"><div style="display:flex;align-items:center;gap:10px"><input id="sectionTitleRange" type="range" min="18" max="44" value="28" style="flex:1" oninput="fontSelected(this.value)"><input id="sectionTitleNumber" type="number" min="18" max="44" value="28" style="width:68px;padding:7px;border:1px solid #dcded9;border-radius:8px" oninput="fontSelected(this.value)"></div></div><button class="light" onclick="resetStyle()">선택 섹션 초기화</button><hr style="border:0;border-top:1px solid #eee;margin:20px 0"><div class="note" id="flowNote"></div></aside>
 </main><div class="toast" id="toast"></div><div id="modeHint">T 텍스트 추가: 미리보기에서 글을 넣을 위치를 클릭하세요 · Esc 취소</div><div id="elementEditor"><span class="ee-grip" title="끌어서 이동">✥ 이동</span><button type="button" onclick="duplicateElement()">복제</button><button type="button" onclick="deleteElement()">삭제</button><button type="button" onclick="clearElementSelection()">완료</button></div>
 <script>
-let selected=null, images={heroImg:null},tpl='fish',theme='green';
+let selected=null, images={heroImg:null},tpl='farm',theme='basic';
 const $=id=>document.getElementById(id);
 function toast(t){let x=$('toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',2300)}
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -761,9 +751,79 @@ function buildPage(src,preview,quiet){
  if(preview){if(!quiet)toast(T.name+' 템플릿 미리보기');return;}
  toast(miss.length?`${T.name} 템플릿 구성 완료 · 필수 섹션 누락: ${miss.join(', ')}`:`${T.name} 템플릿으로 상세페이지를 구성했습니다.`);
 }
-function renderCheck(){let T=TPL[tpl];let bl=splitSource($('raw').value).blocks.filter(b=>b.body.length),MS=matchSecs(T,bl);$('checkList').innerHTML=`<h3>${T.name} 템플릿 섹션 체크</h3>`+T.secs.map(d=>{let ok=MS.matched.some(m=>m.d===d);return `<div class="chk ${ok?'ok':d.req?'no':'opt'}"><span>${d.label}</span><b>${ok?'✓ 입력됨':d.req?'필수 · 없음':'권장'}</b></div>`}).join('')+`<div class="note" style="margin-top:8px">${T.tip}</div>`;$('flowNote').innerHTML='<b>'+T.name+' 상세페이지 흐름</b><br>1. 첫 화면<br>'+T.secs.map((d,i)=>(i+2)+'. '+d.label).join('<br>')}
+function renderCheck(){let T=TPL[tpl];if($('flowNote'))$('flowNote').innerHTML='<b>'+T.name+' 상세페이지 흐름</b><br>1. 첫 화면<br>'+T.secs.map((d,i)=>(i+2)+'. '+d.label).join('<br>')}
+
+/* 자유 형식 상품정보 파서: 순서·기호·공백·섹션 제목에 의존하지 않고 문맥으로 분류 */
+function splitSource(text){
+ const raw=String(text||'').replace(/\r/g,'').trim();
+ if(!raw)return {title:'오늘의 추천 식품',intro:'',blocks:[]};
+ const lines=raw.split(/\n+/).map(v=>v.trim()).filter(Boolean);
+ const cleanLine=v=>v.replace(/^[\s>*•·\-–—※○●▪︎]+/,'').replace(/\*\*/g,'').trim();
+ let title='오늘의 추천 식품',intro='',start=0;
+ const first=cleanLine(lines[0]||'');
+ const named=first.match(/^(?:상품명|제품명|상품|제품)\s*[:：\-]?\s*(.+)$/i);
+ if(named){title=named[1].trim();start=1}
+ else if(first.length<=70&&!/[:：]/.test(first)&&!/(원산지|중량|보관|배송|해동|등급|교환|환불)/.test(first)){
+   title=first;start=1;
+ }
+ if(start<lines.length){
+   const candidate=cleanLine(lines[start]);
+   if(candidate.length<=150&&!classifyFreeLine(candidate)&&!/^Q[.．:)]/i.test(candidate)){intro=candidate;start++}
+ }
+ const groups=[];
+ const headingPattern=/^(?:○\s*)?(원산지|상품\s*(?:정보|스펙)|제품\s*(?:정보|스펙)|산지|생산자|재배|선별|특징|장점|매리트|메리트|맛있게\s*먹|먹는\s*방법|조리법|요리법|굽는\s*방법|해동|보관|배송|포장|주의\s*사항|구매\s*전|자주\s*묻는|FAQ|교환|환불|반품|등급|이력|성분|원재료)(?:\s*[:：\-!！]?.*)?$/i;
+ function classifyFreeLine(line){
+   const t=line.toLowerCase();
+   if(/교환|환불|반품|취소|반송|접수\s*기한/.test(t))return 'r';
+   if(/자주\s*묻|faq|질문|답변|^q[.．:)]|궁금/.test(t))return 'f';
+   if(/해동|냉장해동|냉동.?해동/.test(t))return 't';
+   if(/보관|냉장\s*보관|냉동\s*보관|실온/.test(t))return 'k';
+   if(/원산지|국내산|국산|수입산|원양산|연근해산|산지\s*지역/.test(t))return 'o';
+   if(tpl==='farm'&&/산지|생산자|재배|농장|농부/.test(t))return 'st';
+   if(/등급|이력번호|이력\s*정보|도축일|도축\s*일자/.test(t))return 'g';
+   if(/배송|택배|포장|발송|출고|수령|아이스팩|스티로폼/.test(t))return 'd';
+   if(/주의|알레르기|알러지|기생충|섭취\s*시|안전\s*안내|유의/.test(t))return 'c';
+   if(/당도|브릭스|산지|생산자|재배|농장|어획|손질|품질|선별|특징|장점|매리트|메리트|추천|풍미|식감|육질|부위/.test(t))return 'p';
+   if(/먹는\s*방법|맛있게|조리|요리|굽는|레시피|활용법/.test(t))return 'h';
+   if(/스펙|상품\s*정보|제품\s*정보|중량|용량|구성|수량|사이즈|크기|규격|품목|품종|소비기한|유통기한|제조일|생산일|포장단위|성분|원재료|보관방법|판매원|품질유지/.test(t))return 's';
+   return null;
+ }
+ let current=null;
+ const push=(cat,heading,line)=>{
+   if(!current||current.cat!==cat|| (heading&&current.title!==heading)){
+     current={title:heading||DEF[cat]||'추가 상품 정보',body:[],cat:cat||null};groups.push(current);
+   }
+   if(line)current.body.push(line);
+ };
+ for(let i=start;i<lines.length;i++){
+   let line=cleanLine(lines[i]);if(!line)continue;
+   const heading= line.replace(/^(?:○\s*)/,'').trim();
+   const explicit=headingPattern.test(heading)&&heading.length<55;
+   if(explicit){
+     const inline=heading.match(/^(.{1,30}?)[：:]\s*(.+)$/);
+     const label=inline?inline[1]:heading.replace(/[!！.。]+$/,'');
+     const cat=classifyFreeLine(label)||classifyFreeLine(heading);
+     const rest=inline?inline[2]:'';
+     current={title:label,body:[],cat:cat||null};groups.push(current);
+     if(rest)current.body.push(rest);
+     continue;
+   }
+   const m=line.match(/^([^:：]{1,24})\s*[:：]\s*(.+)$/);
+   if(m){
+     const cat=classifyFreeLine(m[1]+' '+m[2]);
+     if(cat){push(cat,cat==='s'?'상품 스펙':null,line);continue}
+   }
+   if(/^q\s*[.．:)]/i.test(line)){push('f','자주 묻는 질문',line);continue}
+   const cat=classifyFreeLine(line);
+   push(cat,cat?null:'추가 상품 정보',line);
+ }
+ const blocks=groups.filter(g=>g.body.length).map(g=>({
+   title:g.title,body:g.body,cat:g.cat
+ }));
+ // 섹션이 없는 템플릿 카테고리의 내용도 버리지 않고 추가 섹션으로 노출
+ return {title,intro,blocks};
+}
 function initPickers(){
- renderCategoryInputs();
  $('tplPick').innerHTML=Object.entries(TPL).map(([k,t])=>`<button data-k="${k}" onclick="setTpl('${k}')"><div style="font-size:20px">${t.ico}</div>${t.name}</button>`).join('');
  renderThemePicker();
 }
@@ -881,21 +941,19 @@ function refreshList(){let list=$('sectionList');if(!list)return;list.innerHTML=
 /* ===== 개별 텍스트/박스 편집 ===== */
 let activeElement=null,elementResize=null;
 const EDITABLE_SELECTOR='h1,h2,h3,p,.copy,.sub,.tag,.eyebrow,.hero-kicker,.hero-stamp,.hero-bottomline,.specitem small,.specitem b,.point span,.faq .q,.faq .a,.ingredients,.specitem,.point,.faq,.featurehead,.highlight,.notice,.imgblock,.hero-visual,.editable-box,.tbox';
-function clearElementSelection(){if(activeElement){activeElement.classList.remove('element-selected');const h=activeElement.querySelector(':scope > .element-resize');if(h)h.remove()}activeElement=null;$('elementEditor').style.display='none'}
-function selectElement(el){if(!el||!$('page').contains(el)||el.classList.contains('sec')||el.closest('.tools,.imgtools,.tbox .tb-bar'))return;clearElementSelection();activeElement=el;el.classList.add('element-selected','element-resizable');
+function clearElementSelection(){if(activeElement)activeElement.classList.remove('element-selected');activeElement=null;$('elementEditor').style.display='none'}
+function selectElement(el){if(!el||!$('page').contains(el)||el.classList.contains('sec')||el.closest('.tools,.imgtools,.tbox .tb-bar'))return;clearElementSelection();activeElement=el;el.classList.add('element-selected');
  const isText=el.matches('h1,h2,h3,p,.copy,.sub,.tag,.eyebrow,.hero-kicker,.hero-stamp,.hero-bottomline,.specitem small,.specitem b,.point span,.faq .q,.faq .a,.ingredients,.tb-text,.editable-box');
  if(getComputedStyle(el).display==='inline')el.style.display='inline-block';
  if(isText&&!el.isContentEditable)el.contentEditable='true';
- if(!el.querySelector(':scope > .element-resize')){const h=document.createElement('span');h.className='element-resize';h.title='드래그해서 크기 조절';h.contentEditable='false';el.appendChild(h);h.addEventListener('pointerdown',startElementResize)}
  positionElementEditor();}
 function positionElementEditor(){if(!activeElement)return;const r=activeElement.getBoundingClientRect(),b=$('elementEditor');b.style.display='flex';b.style.top=Math.max(4,r.top-42)+'px';b.style.left=Math.max(4,Math.min(r.left,window.innerWidth-b.offsetWidth-4))+'px'}
 window.addEventListener('scroll',positionElementEditor,true);window.addEventListener('resize',positionElementEditor);
-$('page').addEventListener('click',e=>{if(textMode||e.target.closest('.tools,.imgtools,.imgslot,.slotx,.element-resize'))return;const el=e.target.closest(EDITABLE_SELECTOR);if(el&&!el.closest('.tools,.imgtools')){selectElement(el)}},true);
+$('page').addEventListener('click',e=>{if(textMode||e.target.closest('.tools,.imgtools,.imgslot,.slotx'))return;const el=e.target.closest(EDITABLE_SELECTOR);if(el&&!el.closest('.tools,.imgtools')){selectElement(el)}},true);
 function startElementMove(e){if(!activeElement)return;e.preventDefault();const el=activeElement,r=el.getBoundingClientRect(),sx=e.clientX,sy=e.clientY;const oldLeft=parseFloat(el.style.left)||0,oldTop=parseFloat(el.style.top)||0;el.style.position='relative';const move=ev=>{el.style.left=(oldLeft+ev.clientX-sx)+'px';el.style.top=(oldTop+ev.clientY-sy)+'px';positionElementEditor()};const up=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',up)};document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up)}
 $('elementEditor').querySelector('.ee-grip').addEventListener('pointerdown',startElementMove);
-function startElementResize(e){e.preventDefault();e.stopPropagation();const el=e.currentTarget.parentElement,r=el.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,sw=r.width,sh=r.height;/* 요소 자신에게만 고정 폭·높이를 적용하고 grid/flex의 형제 요소 크기 계산에서 분리 */el.classList.add('element-resizable');el.style.boxSizing='border-box';el.style.alignSelf='start';el.style.justifySelf='start';el.style.flex='none';el.style.maxWidth='none';el.style.width=sw+'px';el.style.height=sh+'px';el.style.minHeight='0';const move=ev=>{el.style.width=Math.max(60,sw+ev.clientX-sx)+'px';el.style.height=Math.max(28,sh+ev.clientY-sy)+'px';positionElementEditor()};const up=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',up)};document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up)}
 function deleteElement(){if(!activeElement)return;const el=activeElement;clearElementSelection();el.remove();toast('선택한 요소를 삭제했습니다.')}
-function duplicateElement(){if(!activeElement)return;const clone=activeElement.cloneNode(true);clone.classList.remove('element-selected');const h=clone.querySelector(':scope > .element-resize');if(h)h.remove();clone.style.left=((parseFloat(activeElement.style.left)||0)+18)+'px';clone.style.top=((parseFloat(activeElement.style.top)||0)+18)+'px';activeElement.after(clone);selectElement(clone);toast('요소를 복제했습니다.')}
+function duplicateElement(){if(!activeElement)return;const clone=activeElement.cloneNode(true);clone.classList.remove('element-selected');const h=clone.querySelector(':scope >');if(h)h.remove();clone.style.left=((parseFloat(activeElement.style.left)||0)+18)+'px';clone.style.top=((parseFloat(activeElement.style.top)||0)+18)+'px';activeElement.after(clone);selectElement(clone);toast('요소를 복제했습니다.')}
 function addBoxToSec(e,b){e.stopPropagation();const sec=b.closest('.sec');const host=sec.querySelector(':scope > .inner,:scope > .feature,:scope > .notice,:scope > .highlight,:scope > .origin')||sec;const box=document.createElement('div');box.className='editable-box';box.contentEditable='true';box.textContent='새 박스 내용을 입력하세요.';host.appendChild(box);selectSec(sec);selectElement(box);box.scrollIntoView({behavior:'smooth',block:'center'});toast('새 박스를 추가했습니다. 내용을 입력하고 크기와 위치를 조절하세요.')}
 
 function moveSec(e,b,d){e.stopPropagation();let s=b.closest('.sec');if(d<0&&s.previousElementSibling)s.parentNode.insertBefore(s,s.previousElementSibling);if(d>0&&s.nextElementSibling)s.parentNode.insertBefore(s.nextElementSibling,s);selectSec(s)}
@@ -1068,7 +1126,7 @@ $('page').addEventListener('mouseup',captureTextSelection);$('page').addEventLis
 const History={stack:[],idx:-1,timer:null,restoring:false,MAX:40,LIMIT:150000000,obs:null};
 function snapState(){
  const p=$('page');
- const html=p.innerHTML.replace(/class="([^"]*)"/g,(m,c)=>'class="'+c.split(/\s+/).filter(x=>x&&x!=='sel'&&x!=='lts-on'&&x!=='allempty'&&x!=='element-selected').join(' ')+'"').replace(/<span class="element-resize"[^>]*><\/span>/g,'');
+ const html=p.innerHTML.replace(/class="([^"]*)"/g,(m,c)=>'class="'+c.split(/\s+/).filter(x=>x&&x!=='sel'&&x!=='lts-on'&&x!=='allempty'&&x!=='element-selected').join(' ')+'"');
  const secs=[...p.querySelectorAll(':scope>.sec')];
  return{html,sel:Math.max(0,secs.indexOf(selected)),dt:p.dataset.template||'',dth:p.dataset.theme||'',style:p.getAttribute('style')||'',cls:p.className.split(/\s+/).filter(x=>x&&x!=='exporting').join(' ')};
 }
@@ -1227,9 +1285,7 @@ function upgradeTools(){
 }
 
 initPickers();
-$('categoryInputs').addEventListener('input',e=>{if(e.target.matches('.cat-product-title,.cat-product-intro,.cat-section-title,.cat-section-body'))renderCategoryPreview()});
-$('categoryInputs').addEventListener('change',e=>{if(e.target.matches('.cat-product-title,.cat-product-intro,.cat-section-title,.cat-section-body'))renderCategoryPreview()});
-$('categoryInputs').addEventListener('click',e=>{if(e.target.matches('.remove-cat-row'))renderCategoryPreview()});setTheme('basic');setTpl('fish',1);renderCheck();refreshList();History.init();
+setTheme('basic');setTpl('farm',1);renderCheck();previewMode=true;buildPage(TPL.farm.sample,true,true);refreshList();History.init();
 </script>
 <script>
 const API='/api/',TK='zt';let ADM=[],ADMTAB='req',idOK='';
