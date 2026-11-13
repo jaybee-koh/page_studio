@@ -361,7 +361,7 @@
 #page .element-selected[contenteditable="true"]{cursor:text}
 #page .editable-box{position:relative;margin:18px 0;padding:24px 28px;border:1px solid #d9ded5;background:#f5f7f1;border-radius:12px;min-height:90px;font-size:20px;line-height:1.8;color:#354238;white-space:pre-wrap}
 #page .editable-box:before{content:'CUSTOM CONTENT';display:block;font-size:10px;letter-spacing:2px;font-weight:900;color:#79916f;margin-bottom:8px}
-#page.exporting,#page.exporting #elementEditor{display:none!important}
+#page.exporting #elementEditor{display:none!important}
 
 .category-inputs{display:grid;gap:10px;margin-top:10px}.cat-input-card{border:1px solid #e4e6e1;border-radius:12px;background:#fff;overflow:hidden}.cat-input-head{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:#f6f7f3;font-weight:800}.cat-input-body{padding:10px;display:grid;gap:10px}.cat-input-row{border:1px solid #eceee9;border-radius:9px;padding:9px;background:#fff}.cat-input-row-head{display:flex;gap:7px;align-items:center;margin-bottom:6px}.cat-input-row-head input{flex:1;min-width:0;font-weight:700}.cat-input-row textarea{width:100%;min-height:66px;resize:vertical}.cat-input-row button,.cat-input-head button{border:1px solid #ddd;background:#fff;border-radius:7px;padding:6px 9px;cursor:pointer}.cat-input-row .remove-cat-row{color:#b43b32}.cat-input-add{width:100%;border:1px dashed #c9cec5!important;background:#fafbf8!important;color:#465447;padding:9px!important;font-weight:700}.cat-input-card details summary{cursor:pointer;list-style:none}.cat-input-card details summary::-webkit-details-marker{display:none}
 /* 카테고리별 입력 패널은 컴팩트하게 */
@@ -382,7 +382,7 @@
 
 /* 상품 스펙 박스와 원재료·알레르기 안내 사이 간격 */
 #page .specgrid + h3{margin-top:34px!important;margin-bottom:12px!important}
-</style><style id="bodyTextDefault">
+.alignpick{display:flex;gap:6px}.alignpick button{background:#fff;color:#39423c;border:1px solid #dcded9;padding:8px 16px;line-height:0}.alignpick button:hover{background:#fff1de;border-color:var(--orange)}</style><style id="bodyTextDefault">
 /* 본문 글자 기본 크기 25px (제목 h1·h2와 장식용 작은 라벨은 제외) */
 #page .hero .sub,#page .sec p,#page .specitem b,#page .copy,#page .notice,#page .notice .copy,#page .q,#page .a,#page .ingredients,#page .point span{font-size:25px}
 </style>
@@ -496,6 +496,7 @@ body.tbdrag #page .sec{overflow:visible!important}
 <div class="field"><label>폰트</label><select id="textFont" oninput="liveTextFont(this.value)" style="width:100%;padding:9px;border:1px solid #dcded9;border-radius:8px"><option value='"Noto Sans KR",Arial,sans-serif'>고딕 · Noto Sans</option><option value='"Noto Serif KR","Nanum Myeongjo",serif'>명조 · Noto Serif</option><option value='Arial,sans-serif'>Arial</option><option value='Georgia,serif'>Georgia</option></select></div>
 <div class="field"><label>글자 크기</label><div style="display:flex;align-items:center;gap:10px"><input id="textSize" type="range" min="10" max="64" value="30" style="flex:1" oninput="liveTextSize(this.value)"><input id="textSizeNumber" type="number" min="10" max="64" value="30" style="width:68px;padding:7px;border:1px solid #dcded9;border-radius:8px" oninput="liveTextSize(this.value)"></div><div class="note" id="textSizeLabel">25px</div></div>
 <div class="field"><label>글자 색상</label><input type="color" id="textColor" value="#27312c" oninput="liveTextColor(this.value)"></div>
+<div class="field"><label>글자 정렬</label><div class="alignpick"><button type="button" title="왼쪽 정렬" aria-label="왼쪽 정렬" onmousedown="event.preventDefault()" onclick="alignText('left')"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="4" x2="17" y2="4"/><line x1="3" y1="8" x2="11" y2="8"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="3" y1="16" x2="11" y2="16"/></svg></button><button type="button" title="가운데 정렬" aria-label="가운데 정렬" onmousedown="event.preventDefault()" onclick="alignText('center')"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="4" x2="17" y2="4"/><line x1="6" y1="8" x2="14" y2="8"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="6" y1="16" x2="14" y2="16"/></svg></button><button type="button" title="오른쪽 정렬" aria-label="오른쪽 정렬" onmousedown="event.preventDefault()" onclick="alignText('right')"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="4" x2="17" y2="4"/><line x1="9" y1="8" x2="17" y2="8"/><line x1="3" y1="12" x2="17" y2="12"/><line x1="9" y1="16" x2="17" y2="16"/></svg></button></div></div>
 
 <div class="note" id="textSelectNote" style="margin-top:7px">선택된 글자가 없습니다.</div>
 <hr style="border:0;border-top:1px solid #eee;margin:18px 0">
@@ -1132,9 +1133,26 @@ function liveTextColor(value){
 function liveTextFont(value){
  const span=ensureLiveTextSpan();if(span){span.style.fontFamily=value;$('textSelectNote').textContent='선택 글꼴 실시간 적용 중';}
 }
+/* ---- 문단 정렬 (왼쪽 / 가운데 / 오른쪽) : 선택한 글자(또는 클릭한 위치)가 들어 있는 문단에 적용 ---- */
+let lastAlignNode=null;
+document.addEventListener('selectionchange',()=>{const sl=window.getSelection();if(sl&&sl.anchorNode&&$('page').contains(sl.anchorNode))lastAlignNode=sl.anchorNode;});
+function alignText(v){
+ const pg=$('page');
+ let n=null;
+ if(liveTextSpan&&liveTextSpan.isConnected)n=liveTextSpan;
+ else if(savedTextRange&&!savedTextRange.collapsed)n=savedTextRange.commonAncestorContainer;
+ else n=lastAlignNode;
+ if(!n||!n.isConnected||!pg.contains(n)){toast('미리보기에서 정렬할 글자를 먼저 클릭하거나 드래그하세요.');return;}
+ let el=n.nodeType===1?n:n.parentElement;
+ while(el&&el!==pg){const d=getComputedStyle(el).display;if(d!=='inline'&&d!=='contents')break;el=el.parentElement;}
+ if(!el||el===pg){toast('정렬할 문단을 찾지 못했습니다. 글자를 다시 클릭해 주세요.');return;}
+ el.style.textAlign=v;
+ $('textSelectNote').textContent='문단 '+({left:'왼쪽',center:'가운데',right:'오른쪽'})[v]+' 정렬 적용';
+}
 function resetStyle(){
  if(!selected){toast('초기화할 섹션을 먼저 선택하세요.');return}
  selected.removeAttribute('style');
+ selected.querySelectorAll('[style*="text-align"]').forEach(x=>{x.style.textAlign='';});
  selected.querySelectorAll('.inner,.hero,.origin,.end,.notice,.highlight,.feature,h1,h2,span').forEach(x=>{
   if(x.hasAttribute('style'))x.removeAttribute('style');
  });
@@ -1155,6 +1173,7 @@ async function downloadJPG(){
     let pg=$('page');
     let rect=pg.getBoundingClientRect();
     let pw=Math.round(rect.width),ph=Math.ceil(rect.height);
+    if(!pw||!ph)throw new Error('페이지 크기를 읽지 못했습니다');
     /* 상세페이지가 길면 한 장짜리 JPG가 브라우저 캔버스·JPG 규격 한계를 넘어 빈(손상된) 파일이 저장됩니다.
        그래서 한 장의 세로 길이를 MAX_SIDE 이하로 제한하고, 그래도 넘으면 여러 장으로 나눠 저장합니다. */
     const MAX_SIDE=15000;
