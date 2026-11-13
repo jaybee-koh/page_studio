@@ -1145,7 +1145,47 @@ function resetStyle(){
 }
 function saveProject(){let d={html:$('page').innerHTML.replace(/ lts-on/g,''),raw:$('raw').value,images,tpl,theme};let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(d)],{type:'application/json'}));a.download='푸드상세페이지-프로젝트.json';a.click();URL.revokeObjectURL(a.href);toast('프로젝트 파일을 저장했습니다.')}
 function loadProject(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);$('page').innerHTML=d.html;upgradeTools();$('raw').value=d.raw||'';images=d.images||images;if(d.tpl){setTpl(d.tpl,1);$('page').dataset.template=d.tpl;}if(d.theme)setTheme(d.theme);renderCheck();selected=$('page').querySelector('.sec');selectSec(selected);toast('프로젝트를 불러왔습니다.')}catch(x){toast('프로젝트 파일을 읽지 못했습니다.')}};r.readAsText(f)}
-async function downloadJPG(){try{clearElementSelection();toast('고화질 JPG를 만드는 중입니다.');if(!window.html2canvas)await new Promise((ok,no)=>{let s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});document.querySelectorAll('.sec').forEach(s=>s.classList.remove('sel'));$('page').classList.add('exporting');document.querySelectorAll('.imgblock').forEach(b=>{if(!b.querySelector('.imgslot.filled'))b.classList.add('allempty')});let pg=$('page');let pw=Math.round(pg.getBoundingClientRect().width);let c=await html2canvas(pg,{scale:2,useCORS:true,backgroundColor:'#fff',logging:false,width:pw,windowWidth:Math.max(pw,document.documentElement.clientWidth),onclone:(doc)=>{let p=doc.getElementById('page');p.style.width=pw+'px';p.style.maxWidth='none';p.style.margin='0';p.style.boxShadow='none';p.querySelectorAll('.sec').forEach(s=>{s.style.outline='none'});p.querySelectorAll('.hero,.origin,.end,.notice').forEach(el=>{el.style.marginLeft='-2px';el.style.marginRight='-2px';el.style.width='calc(100% + 4px)'});}});let a=document.createElement('a');a.download='식품-상품상세페이지.jpg';a.href=c.toDataURL('image/jpeg',.94);a.click();if(selected)selected.classList.add('sel');toast('JPG 다운로드가 완료됐습니다.')}catch(e){toast('JPG 생성 실패. 인터넷 연결을 확인해 주세요.');if(selected)selected.classList.add('sel')}finally{$('page').classList.remove('exporting');document.querySelectorAll('.imgblock.allempty').forEach(b=>b.classList.remove('allempty'))}}
+async function downloadJPG(){
+  try{
+    clearElementSelection();
+    if(!window.html2canvas)await new Promise((ok,no)=>{let s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+    document.querySelectorAll('.sec').forEach(s=>s.classList.remove('sel'));
+    $('page').classList.add('exporting');
+    document.querySelectorAll('.imgblock').forEach(b=>{if(!b.querySelector('.imgslot.filled'))b.classList.add('allempty')});
+    let pg=$('page');
+    let rect=pg.getBoundingClientRect();
+    let pw=Math.round(rect.width),ph=Math.ceil(rect.height);
+    /* 상세페이지가 길면 한 장짜리 JPG가 브라우저 캔버스·JPG 규격 한계를 넘어 빈(손상된) 파일이 저장됩니다.
+       그래서 한 장의 세로 길이를 MAX_SIDE 이하로 제한하고, 그래도 넘으면 여러 장으로 나눠 저장합니다. */
+    const MAX_SIDE=15000;
+    let scale=Math.max(1,Math.min(2,MAX_SIDE/ph));
+    let sliceCss=Math.floor(MAX_SIDE/scale);
+    let parts=Math.max(1,Math.ceil(ph/sliceCss));
+    let onclone=(doc)=>{let p=doc.getElementById('page');p.style.width=pw+'px';p.style.maxWidth='none';p.style.margin='0';p.style.boxShadow='none';p.querySelectorAll('.sec').forEach(s=>{s.style.outline='none'});p.querySelectorAll('.hero,.origin,.end,.notice').forEach(el=>{el.style.marginLeft='-2px';el.style.marginRight='-2px';el.style.width='calc(100% + 4px)'});};
+    for(let i=0;i<parts;i++){
+      let y=i*sliceCss,h=Math.min(sliceCss,ph-y);
+      toast(parts>1?'JPG를 만드는 중입니다. ('+(i+1)+'/'+parts+')':'고화질 JPG를 만드는 중입니다.');
+      let c=await html2canvas(pg,{scale:scale,useCORS:true,backgroundColor:'#fff',logging:false,x:0,y:y,width:pw,height:h,windowWidth:Math.max(pw,document.documentElement.clientWidth),onclone:onclone});
+      let blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));
+      c.width=c.height=0;
+      if(!blob||blob.size<2000)throw new Error('빈 이미지');
+      let a=document.createElement('a');
+      a.download=parts>1?'식품-상품상세페이지_'+(i+1)+'.jpg':'식품-상품상세페이지.jpg';
+      a.href=URL.createObjectURL(blob);
+      document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href),15000);
+      if(i<parts-1)await new Promise(r=>setTimeout(r,600));
+    }
+    if(selected)selected.classList.add('sel');
+    toast(parts>1?'JPG '+parts+'장 다운로드가 완료됐습니다. (페이지가 길어 나눠서 저장했습니다)':'JPG 다운로드가 완료됐습니다.');
+  }catch(e){
+    toast((e&&e.type==='error')?'JPG 생성 실패. 인터넷 연결을 확인해 주세요.':'JPG 생성 실패. 이미지가 너무 크거나 불러오지 못한 사진이 있습니다.');
+    if(selected)selected.classList.add('sel');
+  }finally{
+    $('page').classList.remove('exporting');
+    document.querySelectorAll('.imgblock.allempty').forEach(b=>b.classList.remove('allempty'));
+  }
+}
 $('page').addEventListener('click',e=>{let s=e.target.closest('.sec');if(s&&!e.target.closest('.tools'))selectSec(s)});
 $('page').addEventListener('mousedown',()=>{clearLiveHighlight();liveTextSpan=null;savedTextRange=null;$('textSelectNote').textContent='선택된 글자가 없습니다.';});
 $('page').addEventListener('mouseup',captureTextSelection);$('page').addEventListener('keyup',captureTextSelection);
