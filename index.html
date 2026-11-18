@@ -61,6 +61,21 @@ button:disabled{opacity:.4;cursor:default}
 .btnrow button:hover{background:#ffe9cf}
 .right hr{border:0;border-top:1px solid #eee;margin:18px 0}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1d2420;color:#fff;padding:11px 18px;border-radius:10px;display:none;z-index:300;font-size:13px;max-width:90vw}
+
+.rv{position:fixed;inset:0;background:#0009;z-index:250;display:none;align-items:center;justify-content:center;padding:14px}
+.rvbox{background:#fff;border-radius:16px;width:min(1280px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+.rvh{display:flex;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}.rvh b{font-size:16px;white-space:nowrap}.rvh .note{flex:1}
+.rvmid{overflow:auto;padding:14px 18px;flex:1}
+.rvcrit{background:#fff4e5;border:1px solid #f0cf9f;color:#6b4513;border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.7;margin-bottom:12px}
+.rvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.rvcol{background:#f6f7f4;border:1.5px dashed #d5d9d2;border-radius:11px;padding:9px;min-height:58px}.rvcol.over{border-color:var(--green);background:var(--green2)}.rvcol.empty{opacity:.55}
+.rvct{font-size:12px;font-weight:800;margin-bottom:6px}.rvct em{font-style:normal;background:var(--green);color:#fff;border-radius:9px;padding:0 6px;font-size:11px;margin-left:4px}
+.rvph{font-size:11px;color:var(--muted)}
+.rvit{background:#fff;border:1px solid #e1e4de;border-left:4px solid #b9c7be;border-radius:8px;padding:7px 8px;margin-bottom:6px;font-size:12.5px;line-height:1.5;display:flex;gap:6px;align-items:flex-start;cursor:grab}
+.rvit.low{border-left-color:#e0572b;background:#fff3ee}.rvit.mid,.rvit.ctx{border-left-color:#e5a935;background:#fffaec}.rvit.learned{border-left-color:#2f7a4a}.rvit.moved{border-left-color:#3b5bdb;background:#f0f3ff}
+.rvit i{font-style:normal;font-weight:900;font-size:11px;flex:none;color:#8a5a1d}.rvit span{flex:1;word-break:break-all}
+.rvit select{flex:none;width:22px;border:1px solid #d9ddd7;border-radius:6px;font-size:11px;padding:1px;background:#f6f7f4;cursor:pointer}
+.rvf{display:flex;gap:10px;align-items:center;padding:12px 18px;border-top:1px solid var(--line);flex-wrap:wrap}.rvf .sp{flex:1}.rvf label{font-size:12.5px;font-weight:700;display:flex;gap:6px;align-items:center}
 @media(max-width:1150px){.layout{grid-template-columns:320px minmax(0,1fr)}.right{grid-column:1/-1;position:static;height:auto}}
 @media(max-width:800px){.layout{display:block;padding:8px}.panel{position:static;height:auto;margin-bottom:10px}.canvas{padding:6px}.logo{font-size:15px}#raw{height:220px}}
 
@@ -291,7 +306,8 @@ button:disabled{opacity:.4;cursor:default}
  <div class="stylepick" id="stylePick"></div>
  <div class="accentrow"><label>포인트 컬러</label><input type="color" id="accentPick" oninput="setAccent(this.value)"><button class="light" onclick="resetAccent()">카테고리 기본색</button></div>
 
- <button class="primary" style="margin-top:16px" onclick="rebuild()">✦ 상세페이지 다시 구성</button>
+ <button class="primary" style="margin-top:16px;background:#e58b37;color:#2b1a08" onclick="openReview()">🔍 분류 확인하고 만들기 (추천)</button>
+ <button class="light" style="width:100%;margin-top:6px;padding:11px" onclick="rebuild()">✦ 바로 다시 구성</button>
  <div class="note warn" id="dirtyNote" style="display:none">미리보기에서 직접 수정한 내용이 있어 자동 갱신을 멈췄습니다. 입력 내용으로 새로 만들려면 위 버튼을 눌러 주세요.</div>
 
  <div class="step"><span>4</span>구성 점검</div>
@@ -338,6 +354,11 @@ button:disabled{opacity:.4;cursor:default}
  <div class="note" style="margin-top:12px">섹션 위에 마우스를 올리면 <b>🖼 이미지 · ↑↓ 이동 · 복제 · 삭제</b> 버튼이 나옵니다. 이미지 칸은 여러 장을 한 번에 선택해 채울 수 있어요.</div>
 </aside>
 </main>
+<div class="rv" id="rv"><div class="rvbox">
+ <div class="rvh"><b>🔍 분류 확인</b><span class="note">자동 분류 결과입니다. 틀린 문장은 다른 칸으로 끌어다 놓거나 문장 오른쪽 ▼ 로 옮기세요. <b>?</b> 주황 = 확신 낮음, <b>△</b> 노랑 = 추정, <b>★</b> 초록 = 학습된 표현.</span><button class="light" onclick="rvClose()">닫기</button></div>
+ <div class="rvmid"><div id="rvCrit"></div><div class="rvgrid" id="rvGrid"></div></div>
+ <div class="rvf"><label id="rvOkRow" style="display:none"><input type="checkbox" id="rvOk">원산지·소비기한·알레르기 문장이 맞는지 확인했습니다</label><span class="note sp" id="rvSum"></span><button class="light" onclick="rvForget()">학습 초기화</button><button class="primary" style="width:auto;padding:11px 22px" onclick="rvApply()">이대로 만들기 (옮긴 문장은 학습)</button></div>
+</div></div>
 <div class="toast" id="toast"></div>
 <input id="slotPicker" type="file" accept="image/*" multiple hidden onchange="slotFiles(event)">
 
@@ -960,6 +981,123 @@ function detectCat(text){
   const n=words.size+tw.size*3;if(n>bs){bs=n;best=id}}
  return best}
 
+
+/* =====================================================================
+   AI 없는 분류 엔진: ① 대형 사전 ② 문장 점수 ③ 앞뒤 문맥 ④ 사용자 학습
+   ===================================================================== */
+let _SQ=0,_CC='high';
+function mkBody(){const a=[];a.seq=[];a.conf=[];a.push=function(x){Array.prototype.push.call(a,x);a.seq.push(_SQ++);a.conf.push(_CC);return a.length};return a}
+const mkBlock=(cat,title)=>({title:title||'',cat:cat||null,body:mkBody()});
+const norm=s=>String(s).replace(/\s+/g,'').toLowerCase();
+const stripQA=t=>String(t).replace(/^[QA]\s*[.．:)]\s*/i,'');
+/* 사전: [강한 단서(3점), 중간(1.5점), 약한(0.7점)] — 공백 없이 쉼표로 구분, 문장의 공백을 지우고 비교 */
+const SD={
+origin:['원산지,국내산,수입산,국산,제조국,생산국,원양산,국내가공,국내제조','호주산,미국산,캐나다산,뉴질랜드산,칠레산,중국산,베트남산,브라질산,스페인산,노르웨이산,러시아산,일본산,태국산,필리핀산,에콰도르산,한우,생산지,재배지,어획해역','서귀포,제주,성주,나주,영동,안동,포항,완도,통영,거제,여수,강원,경북,경남,전남,전북,충남,충북,산지,농장'],
+spec:['품목,품종,중량,내용량,용량,규격,구성,수량,소비기한,유통기한,제조일,제조연월,포장단위,포장방식,식품유형,모델명,제품명,상품명,재질,소재,무게,등급,이력번호,제조사,제조원,판매원,브랜드,옵션,색상,크기','약,내외,이상,이하,세트,개입,구성품,포함,선택,혼합,과수','평균,대략,수준'],
+storage:['보관,냉장보관,냉동보관,실온보관,냉장고,냉동실,냉동고,서늘한,통풍,직사광선,밀봉,밀폐,개봉후,습기,건조한,그늘,상온,보존,저장,지퍼백,김치냉장고,야채실,키친타월,신문지','신선도,변질,곰팡이,눅눅,비닐,용기,습한,온도,상하,오래두,오래드','넣어두,넣어주,덮어'],
+thaw:['해동,자연해동,냉장해동,흐르는물,재냉동,완전히녹,녹인,녹으면,녹여','전자레인지,차가운물,얼음,서서히,상온에서','꺼내'],
+delivery:['배송,택배,출고,발송,운송장,송장,당일발송,새벽배송,배송비,무료배송,도서산간,배송기간,영업일,합포장,아이스팩,스티로폼,드라이아이스,완충,포장재,박스포장,냉동포장,수령','주문후,결제,오후,마감,평일,주말,공휴일,휴무,부재,문앞,경비실,택배사,지연,cj대한통운,한진,롯데택배,우체국,로젠','도착,일정,받아보'],
+refund:['교환,환불,반품,불량,파손,오배송,하자,변심,단순변심,고객센터,반품비,왕복택배,재배송,재발송,보상,청약철회,품질보증,a/s,as접수,교환불가,반품불가,취소','연락,문의,카카오톡,카톡,상담,영수증,증빙,동영상,부분환불,환급,귀책,사유,사진,접수,회수,개봉시,개봉한','책임,처리,안내드'],
+notice:['주의,유의,알레르기,알러지,경고,부작용,섭취시,사용시,어린이,영유아,임산부,노약자,질식,화상,과다섭취,이상반응,전문의,복용중,기생충,날것,생식,충분히익혀,이물,개체차,자연산,특성상,반드시,꼭확인,삼가,금물,금지,유의사항','다를수있,차이가있,오차,편차,약간,상이,모니터,촬영환경,개인차,양해,부탁드립니다,참고','가급적,되도록,피해,조심'],
+howto:['먹는방법,조리,요리,레시피,드시는방법,드세요,드시면,활용,사용방법,사용법,사용하세요,바르,발라,도포,세탁,착용,코디,우려,타서,희석,에어프라이어,프라이팬,냄비,오븐,약불,중불,강불,굽,끓,볶,삶,데치,튀기,곁들,비벼,섞','넣고,넣어,분간,분정도,순서,단계,step,스텝,전자레인지,물에,썰,씻','먼저,다음,이어서,마지막'],
+points:['특징,장점,포인트,이유,강점,차별,자랑,엄선,선별,정성,직접,프리미엄,최고,최상,고급,보장,믿고,안심,깐깐,까다롭,추천,만족,인기,베스트,재구매,당도,브릭스,산도,아삭,촉촉,쫄깃,부드러,고소,진한,풍부,향긋,맛있,달콤,새콤,싱싱,신선한,알찬,가득,듬뿍,무첨가,무방부제,수제','햇,제철,갓,바로,한입,매일,하루','정말,너무,아주,더욱,훨씬'],
+ingredients:['성분,원재료,원재료명,원료,함량,영양성분,영양정보,1회제공량,열량,kcal,탄수화물,단백질,지방,나트륨,당류,포화지방,트랜스지방,콜레스테롤,첨가물,향료,정제수,글리세린,전성분,추출물,함유','칼슘,비타민,mg,배합,합성,정제,분말,농축','%'],
+cert:['인증,검사,haccp,해썹,친환경,유기농,무농약,이력제,이력번호,kc인증,식약처,식품의약품,시험성적,성적서,적합,통과,무항생제,동물복지,특허,수상,안전성,잔류농약,방사능,불검출,품질인증,인증서','등록,신고,허가,검출,안전','공인,기관,의뢰'],
+size:['사이즈,치수,총장,어깨,가슴,가슴단면,허리,허리단면,소매,팔길이,밑위,엉덩이,허벅지,밑단,프리사이즈,신장,체중,모델키,모델착용,단면','xl,xxl,cm,mm','측정,오차,핏'],
+story:['이야기,스토리,브랜드,탄생,철학,개발,만들게,대표,농부,어부,대를이어,수십년,세월,약속,믿음,고객여러분,매년,해마다,시작했,지켜왔,고집,자부심,저희가,소개합니다,시작됐','마음,꿈,오랜,처음,그래서,때문','역사,전통,노력,땀']
+};
+const SDX={};for(const k in SD)SDX[k]=SD[k].map(x=>x.split(',').filter(Boolean).map(w=>w.toLowerCase()));
+/* 카테고리 전용 단어 (해당 카테고리일 때만 +2점씩) */
+const CATW={
+farm:{points:'당도,브릭스,수확,선별,과즙,제철,햇,꿀',howto:'껍질,깎,씻,손질,까먹,썰',storage:'상온,신문지,통풍'},
+fish:{howto:'손질,비늘,내장,구이,찜,탕,회,조림',thaw:'해동',notice:'비린,잔가시,활어,중금속,기생충',points:'활,선도,어획,바다'},
+meat:{howto:'구이,숙성,굽,스테이크,핏물',points:'마블링,등급,숙성,부위,육즙',notice:'덜익,충분히익혀,핏물'},
+food:{howto:'전자레인지,데우,끓는물,조리법,에어프라이어',ingredients:'원재료,함량',points:'간편,한끼'},
+bakery:{storage:'실온,당일,냉동',notice:'알레르기,우유,계란,밀,땅콩,대두',points:'수제,버터,촉촉,바삭'},
+drink:{howto:'우려,타서,티백,희석,얼음,냉침',points:'향,로스팅,원두,산미,풍미',ingredients:'원두,카페인'},
+health:{ingredients:'mg,함량,원료,기능성,1일섭취량',howto:'하루,1회,섭취방법,물과함께',notice:'의약품,질병,치료,예방,전문가,상담'},
+beauty:{howto:'바르,흡수,도포,세안후,펴발라',notice:'자극,트러블,패치테스트,피부,이상',ingredients:'전성분,성분'},
+fashion:{size:'사이즈,총장,어깨,cm',howto:'세탁,다림질,건조,드라이',notice:'모니터,색상차이,수치,측정오차'},
+living:{spec:'재질,소재,크기,용량,전원',howto:'사용방법,세척,설치'},
+tech:{spec:'전압,소비전력,해상도,호환,배터리,전원,블루투스,용량',howto:'연결,설치,충전,페어링',refund:'a/s,보증,무상수리'},
+kids:{notice:'3세,질식,안전,주의,삼킴',cert:'kc,안전확인,인증',howto:'사용연령,세척,소독'}
+};
+/* 문장 모양 단서: 숫자·단위·어미·시간 표현 등 */
+const PAT=[
+[/\d+(\.\d+)?\s*(kg|g|ml|mL|l|L|mg|cm|mm|개입|입|개|팩|봉|박스|병|ea|EA|브릭스|brix|Brix|과|구|포|정|캡슐|매|호|인치)(?![가-힣a-zA-Z])/,{spec:2}],
+[/(-?\d+\s*(℃|°C|도씨)|영하\s*\d+|영상\s*\d+)/,{storage:3,thaw:1.5}],
+[/\d+\s*(일|주|개월|달)\s*(간|동안)?\s*(보관|가능|유지)/,{storage:2}],
+[/\d+\s*(분|초)/,{howto:1.5,thaw:1}],
+[/\d+\s*시간/,{thaw:1,howto:.5,refund:.5,storage:.5}],
+[/(수령|도착|받으신?|받은)\s*후?.{0,12}(이내|안에)/,{refund:3}],
+[/\d+\s*(일|개월|달|년)\s*(이내|안에|까지)/,{refund:1,notice:1,storage:1}],
+[/(소비기한|유통기한|제조일)/,{spec:3}],
+[/^(먼저|그다음|다음으로|이어서|마지막으로|끝으로|첫째|둘째|셋째|①|②|③|④|⑤|STEP\s*\d|\d+\s*[.)단계])/i,{howto:2,thaw:1.5}],
+[/(하세요|해\s*주세요|마세요|주십시오|하십시오|바랍니다|해주시기)\s*[.!]?$/,{notice:1,storage:.8,howto:.8,thaw:.6,refund:.6}],
+[/(하지\s*마|금지|불가|안\s*됩니다|삼가|피해\s*주세요|하지\s*않도록)/,{notice:2}],
+[/(있을\s*수\s*있|다를\s*수\s*있|발생할\s*수\s*있|될\s*수\s*있)/,{notice:2}],
+[/(저희|대를\s*이어|수십\s*년|\d+\s*대째|\d+\s*년째)/,{story:3}],
+[/(저는|우리는|대표)/,{story:2}],
+[/(드립니다|보내드려요|발송합니다|출고됩니다|배송됩니다)\s*[.!]?$/,{delivery:1.2,refund:.5}],
+[/(영업일|평일|주말|공휴일|마감)/,{delivery:2}],
+[/(무료|배송비|\d{1,3},\d{3}\s*원)/,{delivery:1.5}],
+[/\d+\s*%/,{ingredients:1,spec:.5}]
+];
+const rank=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]);
+/* ---- 학습 저장소 (브라우저 localStorage, 막혀 있으면 메모리만) ---- */
+const LK='sdp_learn_v1';let _L=null;
+function learnData(){if(_L)return _L;try{_L=JSON.parse(localStorage.getItem(LK)||'null')}catch(e){_L=null}if(!_L||!_L.exact)_L={exact:{},words:{}};return _L}
+function learnSave(){try{localStorage.setItem(LK,JSON.stringify(_L))}catch(e){}}
+function learnReset(){_L={exact:{},words:{}};learnSave()}
+const STOP=new Set('있습니다,합니다,입니다,그리고,하지만,때문에,경우,정도,상품,제품,저희,고객,고객님,이후,통해,위해,대한,있는,없는,같은,이용'.split(','));
+function tokens(s){return [...new Set((String(s).match(/[가-힣A-Za-z]{2,10}/g)||[]).map(w=>w.replace(/(에서|으로|은|는|이|가|을|를|에|로|와|과|도|의|만|까지|께)$/,'')).filter(w=>w.length>=2&&!STOP.has(w)&&!/(니다|세요|어요|아요|해요|하고|해서|으며|이며)$/.test(w)))].slice(0,12)}
+function learnAdd(text,cat){const L=learnData(),t=stripQA(text);const ks=Object.keys(L.exact);if(ks.length>3000)delete L.exact[ks[0]];L.exact[norm(t)]=cat;tokens(t).forEach(w=>{const e=L.words[w]=L.words[w]||{};e[cat]=(e[cat]||0)+1});learnSave()}
+/* ---- 문장 하나의 점수표 ---- */
+function scoreOne(s,catId){
+ const n=norm(s),sc={},add=(k,v)=>{sc[k]=(sc[k]||0)+v};
+ for(const k in SDX)SDX[k].forEach((arr,ti)=>{let c=0;for(const w of arr)if(n.includes(w)&&++c>=3)break;if(c)add(k,c*[3,1.5,.7][ti])});
+ const cw=CATW[catId];if(cw)for(const k in cw){let c=0;for(const w of cw[k].split(','))if(n.includes(w)&&++c>=3)break;if(c)add(k,c*2)}
+ PAT.forEach(([re,m])=>{if(re.test(s))for(const k in m)add(k,m[k])});
+ const len=n.length;
+ if(len<=24&&!/[다요죠까]$/.test(String(s).replace(/[.!?\s]+$/,''))){add('points',1);add('spec',.5)}
+ if(len>=55){add('story',1);add('points',.5)}
+ const L=learnData();let used=0;tokens(s).forEach(t=>{const e=L.words[t];if(e&&used<3){used++;for(const k in e)add(k,Math.min(e[k],2))}});
+ return sc;
+}
+/* ---- 문장 목록 전체 분류: 점수 → 앞뒤 문맥 → 이어받기 → 문답 묶기 ---- */
+function classifyFree(sents,catId){
+ const own=sents.map(s=>scoreOne(s,catId));
+ const res=sents.map((s,i)=>{
+  const ex=learnData().exact[norm(s)];if(ex)return{cat:ex,conf:'learned'};
+  const o=own[i],top=rank(o);let cat=null,conf='low';
+  if(top[0]&&top[0][1]>=2.5&&top[0][1]-(top[1]?top[1][1]:0)>=1.2){cat=top[0][0];conf='high'}
+  else if(top[0]&&top[0][1]>=1.5){cat=top[0][0];conf='mid'}
+  if(conf!=='high'){
+   const sm={};[-2,-1,1,2].forEach(d=>{const p=own[i+d];if(p)for(const k in p)sm[k]=(sm[k]||0)+p[k]*(Math.abs(d)===1?.4:.15)});
+   for(const k in o)sm[k]=(sm[k]||0)+o[k];
+   const t2=rank(sm);
+   if(!cat&&t2[0]&&t2[0][1]>=1){cat=t2[0][0];conf='ctx'}
+   else if(cat&&t2[0]&&t2[0][0]!==cat&&t2[0][1]-(sm[cat]||0)>=1.2){cat=t2[0][0];conf='ctx'}
+  }
+  return{cat,conf};
+ });
+ res.forEach((r,i)=>{ if(r.cat)return;
+  const p=res[i-1];
+  if(p&&p.cat&&p.conf!=='low'&&STAY.has(p.cat)&&sents[i].length<=70){r.cat=p.cat;r.conf='ctx'}
+  else{r.cat=sents[i].length<=40?'points':'story';r.conf='low'}
+ });
+ for(let i=0;i<sents.length-1;i++){const s=sents[i];
+  if(res[i].conf!=='learned'&&res[i+1].conf!=='learned'&&/\?$/.test(s)&&s.length<=70&&!/\?$/.test(sents[i+1])&&sents[i+1].length<=160){res[i]={cat:'faq',conf:'mid',faq:'q'};res[i+1]={cat:'faq',conf:'mid',faq:'a'};i++}}
+ return res;
+}
+/* ---- 블록 ↔ 문장 목록 변환 (확인 화면·학습 반영에 사용) ---- */
+function flat(blocks){const r=[];blocks.forEach(b=>b.body.forEach((t,i)=>r.push({t:String(t),cat:b.cat||'extra',seq:b.body.seq?b.body.seq[i]:r.length,conf:(b.body.conf&&b.body.conf[i])||'high'})));return r}
+function regroup(items,titles){const m={},out=[];items.slice().sort((a,b)=>a.seq-b.seq).forEach(it=>{
+ let t=it.t;const hasP=/^[QA]\s*[.．:)]/i.test(t);
+ if(it.cat==='faq'&&!hasP)t=(/\?\s*$/.test(t)?'Q. ':'A. ')+t;else if(it.cat!=='faq'&&hasP)t=stripQA(t);
+ let b=m[it.cat];if(!b){b=m[it.cat]=mkBlock(it.cat==='extra'?null:it.cat,titles[it.cat]||'');out.push(b)}
+ b.body.push(t);const n=b.body.length-1;b.body.seq[n]=it.seq;b.body.conf[n]=it.conf});return out}
+
 /* ---------- 텍스트 → 섹션 블록 분석 ---------- */
 function parse(text,catId){
  const lines=String(text||'').replace(/\r/g,'').replace(/\*\*/g,'').split('\n').map(s=>s.trim());
@@ -975,10 +1113,10 @@ function parse(text,catId){
  }
  const rest=lines.slice(i);
  const hasHeading=rest.some(l=>!!headingOf(l)||/^POINT\s*0?\d+$/i.test(l));
- const blocks=[],byCat={};let cur=null;
+ _SQ=0;_CC='high';const pend=[];const blocks=[],byCat={};let cur=null;
  const bucket=(cat,t)=>{
   if(cat&&byCat[cat]){if(t&&!byCat[cat].body.length)byCat[cat].title=t;return byCat[cat]}
-  const b={title:t||'',cat:cat||null,body:[]};blocks.push(b);if(cat)byCat[cat]=b;return b};
+  const b=mkBlock(cat,t);blocks.push(b);if(cat)byCat[cat]=b;return b};
  for(;i<lines.length;i++){
   const l=lines[i];
   if(!l||/^[\/\\·•\-–—*_=~]+$/.test(l)||/^\d{1,2}$/.test(l))continue;
@@ -998,15 +1136,21 @@ function parse(text,catId){
     if(inSpec||(!stay&&SPECK.test(label))||(!hasHeading&&label.length<=10&&val.length<=70)){bucket(inSpec?cur.cat:'spec','').body.push(label+' : '+val);continue}
    }
   }
-  const txt=l.replace(/^[-•·▪*※→✓]\s*/,'');
+  const txt=l.replace(/^(?:-(?!\d)|[•·▪*※→✓])\s*/,'');
   if(!hasHeading){
-   txt.split(/(?<=[.!?。])\s+/).map(s=>s.trim()).filter(Boolean).forEach(s=>{const fc=freeCat(s);bucket(fc||(s.length<=40?'points':'story'),'').body.push(s)});
+   txt.split(/(?<=[.!?。])\s+/).map(s=>s.trim()).filter(Boolean).forEach(s=>pend.push({s,sq:_SQ++}));
    continue;
   }
   if(!cur)cur=bucket('story','상품 소개');
   cur.body.push(txt);
  }
- const out=blocks.filter(b=>b.body.some(x=>String(x).trim()));
+ if(pend.length){const ss=pend.map(p=>p.s),rs=classifyFree(ss,catId);
+  rs.forEach((r,k)=>{const txt=r.faq==='q'?'Q. '+ss[k]:r.faq==='a'?'A. '+ss[k]:ss[k];const b=bucket(r.cat,'');b.body.push(txt);const n=b.body.length-1;b.body.seq[n]=pend[k].sq;b.body.conf[n]=r.conf});
+  _CC='high'}
+ let out=blocks.filter(b=>b.body.some(x=>String(x).trim()));
+ const LX=learnData().exact;
+ if(Object.keys(LX).length){const it=flat(out);let ch=false;it.forEach(x=>{const e=LX[norm(stripQA(x.t))];if(e&&e!==x.cat){x.cat=e;x.conf='learned';ch=true}});
+  if(ch){const ti={};out.forEach(b=>{const k=b.cat||'extra';if(!ti[k])ti[k]=b.title});out=regroup(it,ti)}}
  return {title,intro,blocks:out,hasHeading};
 }
 
@@ -1106,12 +1250,12 @@ function applyTheme(){
 }
 
 /* ----- 페이지 만들기 ----- */
-function buildPage(){
+function buildPage(Pover){
  const raw=$('raw').value,empty=!raw.trim();
  const catId=S.cat==='auto'?(empty?'farm':detectCat(raw)):S.cat;
  S.used=catId;
  const C=CATS[catId];
- const P=parse(empty?C.sample:raw,catId);
+ const P=Pover||parse(empty?C.sample:raw,catId);
  const r=renderPage(P,C,S.heroSrc);
  $('page').innerHTML=r.html;
  S.meta=r;
@@ -1287,6 +1431,7 @@ function hRestore(html){History.busy=true;try{const idx=Math.max(0,[...$('page')
 function undo(){if(History.t)hCommit();if(History.i<=0){toast('더 이상 되돌릴 수 없습니다.');return}History.i--;hRestore(History.st[History.i]);markDirty()}
 function redo(){if(History.t)hCommit();if(History.i>=History.st.length-1){toast('다시 실행할 내용이 없습니다.');return}History.i++;hRestore(History.st[History.i]);markDirty()}
 document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&$('rv').style.display==='flex')rvClose();
  if(!(e.ctrlKey||e.metaKey)||e.altKey)return;
  const tag=e.target&&e.target.tagName;if(tag==='TEXTAREA'||tag==='INPUT'||tag==='SELECT')return;
  if(e.code==='KeyZ'&&!e.shiftKey){e.preventDefault();undo()}else if(e.code==='KeyY'||(e.code==='KeyZ'&&e.shiftKey)){e.preventDefault();redo()}
@@ -1294,6 +1439,42 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('beforeinput',e=>{const t=e.target;if(!t||!t.closest||!t.closest('#page'))return;if(e.inputType==='historyUndo'){e.preventDefault();undo()}else if(e.inputType==='historyRedo'){e.preventDefault();redo()}},true);
 $('page').addEventListener('input',markDirty);
 $('page').addEventListener('mousedown',()=>{document.querySelectorAll('#page .lts').forEach(x=>x.classList.remove('lts'))});
+
+
+/* ----- 분류 확인 화면 ----- */
+const RV={items:[],P:null,titles:{}};
+const RV_ORDER=['origin','spec','size','points','story','howto','thaw','storage','ingredients','cert','delivery','notice','faq','refund','extra'];
+const rvLab=k=>k==='extra'?'기타 (추가 섹션)':LIB[k].label;
+const CRIT=/원산지|국내산|수입산|소비기한|유통기한|제조일|알레르기|알러지/;
+function openReview(){
+ const raw=$('raw').value;if(!raw.trim())return toast('먼저 상품 정보를 입력해 주세요.');
+ const catId=S.cat==='auto'?detectCat(raw):S.cat;
+ const P=parse(raw,catId);RV.P=P;RV.titles={};P.blocks.forEach(b=>{const k=b.cat||'extra';if(!RV.titles[k])RV.titles[k]=b.title||''});
+ RV.items=flat(P.blocks).map((it,i)=>({...it,id:i,orig:it.cat}));
+ $('rvOk').checked=false;$('rv').style.display='flex';rvRender();
+}
+function rvItem(x){const bd={low:'?',mid:'△',ctx:'△',learned:'★',moved:'✓'}[x.conf]||'';
+ return `<div class="rvit ${x.conf}" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','${x.id}')">${bd?`<i>${bd}</i>`:''}<span>${esc(x.t)}</span><select title="다른 칸으로 옮기기" onchange="rvMove(${x.id},this.value)">${RV_ORDER.map(c=>`<option value="${c}"${c===x.cat?' selected':''}>${esc(rvLab(c))}</option>`).join('')}</select></div>`}
+function rvRender(){
+ $('rvGrid').innerHTML=RV_ORDER.map(k=>{const its=RV.items.filter(x=>x.cat===k).sort((a,b)=>a.seq-b.seq);
+  return `<div class="rvcol${its.length?'':' empty'}" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="this.classList.remove('over');rvDrop(event,'${k}')"><div class="rvct">${esc(rvLab(k))}<em>${its.length}</em></div>${its.map(rvItem).join('')||'<div class="rvph">여기로 끌어다 놓기</div>'}</div>`}).join('');
+ const cr=RV.items.filter(x=>CRIT.test(x.t));
+ $('rvCrit').innerHTML=cr.length?`<div class="rvcrit"><b>⚠ 틀리면 안 되는 정보 — 분류가 맞는지 보세요</b>${cr.map(x=>`<div>· ${esc(x.t)} <small>→ <b>${esc(rvLab(x.cat))}</b></small></div>`).join('')}</div>`:'';
+ $('rvOkRow').style.display=cr.length?'flex':'none';
+ const weak=RV.items.filter(x=>['low','mid','ctx'].includes(x.conf)).length;
+ $('rvSum').textContent=`총 ${RV.items.length}문장 · 확인 권장 ${weak}개 · 학습된 문장 ${Object.keys(learnData().exact).length}개`;
+}
+function rvMove(id,k){const it=RV.items.find(x=>x.id===+id);if(!it||it.cat===k)return;it.cat=k;it.conf='moved';rvRender()}
+function rvDrop(e,k){e.preventDefault();rvMove(e.dataTransfer.getData('text/plain'),k)}
+function rvClose(){$('rv').style.display='none'}
+function rvForget(){if(!confirm('학습한 표현을 모두 지울까요?'))return;learnReset();rvRender();toast('학습 내용을 초기화했습니다.')}
+function rvApply(){
+ if($('rvOkRow').style.display!=='none'&&!$('rvOk').checked)return toast('원산지·소비기한 문장을 확인하고 체크해 주세요.');
+ let n=0;RV.items.forEach(it=>{if(it.cat!==it.orig){learnAdd(it.t,it.cat);n++}});
+ const P2={title:RV.P.title,intro:RV.P.intro,hasHeading:RV.P.hasHeading,blocks:regroup(RV.items,RV.titles)};
+ rvClose();S.dirty=false;$('dirtyNote').style.display='none';buildPage(P2);
+ toast(n?`상세페이지를 만들었습니다. 옮긴 ${n}문장은 다음부터 자동으로 맞게 분류됩니다.`:'상세페이지를 만들었습니다.');
+}
 
 /* ----- 시작 ----- */
 renderCatGrid();renderStylePick();buildPage();
